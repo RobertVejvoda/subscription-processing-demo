@@ -1,0 +1,59 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubscriptionService", "SubscriptionService\SubscriptionService.csproj", "{04A5F6BD-A5DF-4D30-A33E-195AB5CCAD36}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientService", "ClientService\ClientService.csproj", "{54799EDB-F883-4C36-8EAD-0F66CDB427D0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "blocks", "blocks", "{B2D1D32D-244B-4FBC-9D7A-14864DAE3CBB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "blocks\Core\Core.csproj", "{5123AAEB-AB0E-44B6-9670-1607F1399A11}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Camunda", "blocks\Camunda\Camunda.csproj", "{422B1A94-1600-4010-8D67-1D9F85E3BB2C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventBus", "blocks\EventBus\EventBus.csproj", "{759BC2E2-C761-4A67-BBC9-322D906923B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthChecks", "blocks\HealthChecks\HealthChecks.csproj", "{C5B0823C-0C2E-4DEA-A314-53D216887E61}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Readme", "Readme", "{0063CEB9-2065-4CDD-97EE-68B95FD8395C}"
+	ProjectSection(SolutionItems) = preProject
+		..\readme.md = ..\readme.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{04A5F6BD-A5DF-4D30-A33E-195AB5CCAD36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04A5F6BD-A5DF-4D30-A33E-195AB5CCAD36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04A5F6BD-A5DF-4D30-A33E-195AB5CCAD36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04A5F6BD-A5DF-4D30-A33E-195AB5CCAD36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54799EDB-F883-4C36-8EAD-0F66CDB427D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54799EDB-F883-4C36-8EAD-0F66CDB427D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54799EDB-F883-4C36-8EAD-0F66CDB427D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54799EDB-F883-4C36-8EAD-0F66CDB427D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5123AAEB-AB0E-44B6-9670-1607F1399A11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5123AAEB-AB0E-44B6-9670-1607F1399A11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5123AAEB-AB0E-44B6-9670-1607F1399A11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5123AAEB-AB0E-44B6-9670-1607F1399A11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{422B1A94-1600-4010-8D67-1D9F85E3BB2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{422B1A94-1600-4010-8D67-1D9F85E3BB2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{422B1A94-1600-4010-8D67-1D9F85E3BB2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{422B1A94-1600-4010-8D67-1D9F85E3BB2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{759BC2E2-C761-4A67-BBC9-322D906923B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{759BC2E2-C761-4A67-BBC9-322D906923B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{759BC2E2-C761-4A67-BBC9-322D906923B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{759BC2E2-C761-4A67-BBC9-322D906923B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5B0823C-0C2E-4DEA-A314-53D216887E61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5B0823C-0C2E-4DEA-A314-53D216887E61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5B0823C-0C2E-4DEA-A314-53D216887E61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5B0823C-0C2E-4DEA-A314-53D216887E61}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5123AAEB-AB0E-44B6-9670-1607F1399A11} = {B2D1D32D-244B-4FBC-9D7A-14864DAE3CBB}
+		{422B1A94-1600-4010-8D67-1D9F85E3BB2C} = {B2D1D32D-244B-4FBC-9D7A-14864DAE3CBB}
+		{759BC2E2-C761-4A67-BBC9-322D906923B5} = {B2D1D32D-244B-4FBC-9D7A-14864DAE3CBB}
+		{C5B0823C-0C2E-4DEA-A314-53D216887E61} = {B2D1D32D-244B-4FBC-9D7A-14864DAE3CBB}
+	EndGlobalSection
+EndGlobal

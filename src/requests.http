@@ -1,0 +1,72 @@
+### 
+
+POST http://localhost:6002/v1.0/bindings/zeebe-command
+dapr-app-id: subscription-api
+content-type: application/json
+
+{ 
+  "operation": "create-instance", 
+  "data": {
+    "bpmnProcessId": "Subscription_Process_Workflow", 
+    "variables": 
+    {
+      "firstName": "Homer",
+      "lastName": "Simpson",
+      "email": "homer.simpson@thesimpsons.movie",
+      "age": 30,
+      "loanAmount": 200000,
+      "insuredAmount": 100000
+    } 
+  } 
+}
+
+### 
+
+POST http://localhost:6001/v1.0/bindings/zeebe-command
+dapr-app-id: client-api
+Content-Type: application/json
+
+{
+  "operation": "set-variables",
+  "data": { 
+    "elementInstanceKey": 2251799813816644, 
+    "variables": { 
+      "info-message": "no time to wait!" 
+    } 
+  }   
+}   
+
+###
+
+POST http://localhost:6001/v1.0/bindings/zeebe-command
+dapr-app-id: client-api
+Content-Type: application/json
+
+{
+  "operation": "publish-message",
+  "data": { 
+    "messageName": "on-information-received", 
+    "correlationKey": "S-8E5D6C84DC9",
+    "variables": { 
+      "subscriptionId": "S-8E5D6C84DC9",
+      "clientId": "does not matter in this demo"
+    } 
+  }   
+}   
+
+###
+POST http://localhost:6001/v1.0/bindings/zeebe-command
+dapr-app-id: client-api
+Content-Type: application/json
+
+{
+  "operation": "throw-error",
+  "data": {
+    "errorCode": "WAIT_ERROR",
+    "errorMessage": "Waiting too long for response!", 
+    "jobKey": 2251799813820317
+  },
+  "metadata": {
+    "we-can-test": "but is useless"
+  }   
+} 
