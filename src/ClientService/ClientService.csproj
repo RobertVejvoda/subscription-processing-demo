@@ -25,6 +25,7 @@
     <ItemGroup>
       <ProjectReference Include="..\blocks\Core\Core.csproj" />
       <ProjectReference Include="..\blocks\EventBus\EventBus.csproj" />
+      <ProjectReference Include="..\blocks\HealthChecks\HealthChecks.csproj" />
     </ItemGroup>
 
 </Project>

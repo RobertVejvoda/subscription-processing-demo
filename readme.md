@@ -26,13 +26,13 @@ Lets process and validate incoming subscriptions by exposing microservice APIs a
 
 ### Self hosted
 
-| Service             | Application Port | Dapr sidecar HTTP port | Dapr sidecar gRPC port |
-|---------------------|------------------|------------------------|------------------------|
-| SubscriptionService | 5001             | 3601                   | 60001                  |
-| ClientService       | 5002             | 3602                   | 60002                  |
-| UnderwritingService | 5003             | 3603                   | 60003                  |
-| PartnerService      | 5004             | 3604                   | 60004                  |
-| ProductService      | 5005             | 3605                   | 60005                  |
+| Service             | Application Port | Dapr sidecar HTTP port | Dapr sidecar gRPC port | Metrics port |
+|---------------------|------------------|------------------------|------------------------|--------------|
+| SubscriptionService | 5001             | 3601                   | 60001                  | 9090         |
+| ClientService       | 5002             | 3602                   | 60002                  | 9090         |
+| UnderwritingService | 5003             | 3603                   | 60003                  | 9090         |
+| PartnerService      | 5004             | 3604                   | 60004                  | 9090         |
+| ProductService      | 5005             | 3605                   | 60005                  | 9090         |
 
 Install Dapr and initialize in local environment: https://docs.dapr.io/getting-started/install-dapr-selfhost/
 

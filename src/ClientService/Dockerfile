@@ -12,7 +12,7 @@ COPY "./ClientService/ClientService.csproj" .
 RUN dotnet restore -a $TARGETARCH
 
 # copy everything else and build app
-COPY "./ClientAPI/." .
+COPY "./ClientService/." .
 RUN dotnet publish -a $TARGETARCH -o /app --no-restore 
 
 # Enable globalization and time zones:

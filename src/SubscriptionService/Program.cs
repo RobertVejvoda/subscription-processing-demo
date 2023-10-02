@@ -1,5 +1,7 @@
 using System.Text.Json;
 using EventBus;
+using Healthchecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using SubscriptionService.Events;
 using SubscriptionService.Repository;
@@ -27,6 +29,11 @@ if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddDaprSidekick(builder.Configuration);
 }
+
+builder.Services
+    .AddHealthChecks()
+    .AddCheck("self", () => HealthCheckResult.Healthy())
+    .AddDapr();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
