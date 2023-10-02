@@ -5,7 +5,6 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-        <LangVersion>preview</LangVersion>
         <RootNamespace>ClientService</RootNamespace>
     </PropertyGroup>
 
@@ -25,7 +24,7 @@
     <ItemGroup>
       <ProjectReference Include="..\blocks\Core\Core.csproj" />
       <ProjectReference Include="..\blocks\EventBus\EventBus.csproj" />
-      <ProjectReference Include="..\blocks\HealthChecks\HealthChecks.csproj" />
+      <ProjectReference Include="..\blocks\Healthchecks\Healthchecks.csproj" />
     </ItemGroup>
 
 </Project>

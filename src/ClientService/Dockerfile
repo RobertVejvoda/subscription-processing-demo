@@ -8,12 +8,19 @@ WORKDIR /src
 EXPOSE 8080
 
 # copy csproj and restore as distinct layers
-COPY "./ClientService/ClientService.csproj" .
-RUN dotnet restore -a $TARGETARCH
+COPY ["blocks/Core/Core.csproj", "src/blocks/Core/"]
+COPY ["blocks/EventBus/EventBus.csproj", "src/blocks/EventBus/"]
+COPY ["blocks/Healthchecks/Healthchecks.csproj", "src/blocks/Healthchecks/"]
+COPY ["ClientService/ClientService.csproj", "src/ClientService/"]
+RUN dotnet restore "src/ClientService/ClientService.csproj" -a $TARGETARCH
 
 # copy everything else and build app
-COPY "./ClientService/." .
-RUN dotnet publish -a $TARGETARCH -o /app --no-restore 
+COPY . .
+WORKDIR "/src/ClientService"
+RUN dotnet build "ClientService.csproj" -c Release -o /app/build -a $TARGETARCH
+
+FROM build as publish
+RUN dotnet publish "ClientService.csproj" -a $TARGETARCH -o /app/publish --no-restore 
 
 # Enable globalization and time zones:
 # https://github.com/dotnet/dotnet-docker/blob/main/samples/enable-globalization.md
@@ -21,7 +28,7 @@ RUN dotnet publish -a $TARGETARCH -o /app --no-restore
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 
-COPY --from=build /app .
+COPY --from=publish /app/publish .
 
 USER $APP_UID
 ENTRYPOINT ["./ClientService"]

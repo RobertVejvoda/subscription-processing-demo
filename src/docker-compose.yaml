@@ -16,7 +16,7 @@ services:
       - "5001:8080"       # app
       - "3601:3500"
       - "60001:50001"
-      - "9090:9090"
+      - "9091:9090"
 
   subscription-service-dapr:
     container_name: subscription-service-dapr
@@ -52,7 +52,7 @@ services:
       - "5002:8080"       # app
       - "3602:3500"
       - "60002:50001"
-      - "9090:9090"
+      - "9092:9090"
 
   client-service-dapr:
     container_name: client-service-dapr
