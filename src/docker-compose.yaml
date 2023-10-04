@@ -2,14 +2,14 @@ version: "3.7"
 
 services:
 
-  subscription-service:
-    container_name: subscription-service
-    image: subscription-service:${TAG:-latest}
+  subscription:
+    container_name: subscription
+    image: subscription:${TAG:-latest}
     build:
       context: .
       dockerfile: ./SubscriptionService/Dockerfile
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
       - NAMESPACE=demo
     ports:
@@ -18,17 +18,17 @@ services:
       - "60001:50001"
       - "9091:9090"
 
-  subscription-service-dapr:
-    container_name: subscription-service-dapr
+  subscription-dapr:
+    container_name: subscription-dapr
     image: daprio/daprd:1.11.3
-    network_mode: "service:subscription-service"
+    network_mode: "service:subscription"
     command: [ "./daprd",
-               "-app-id", "subscription-service",
+               "-app-id", "subscription",
                "-dapr-http-port", "3500",
                "-dapr-grpc-port", "50001",
                "-metrics-port", "9090",
                "-app-port", "8080",   # app
-               "-placement-host-address", "dapr-placement:50001",
+               "-placement-host-address", "dapr-placement:50005",
                "-components-path", "/components",
                "-config", "/configuration/dapr-config.yaml"
     ]
@@ -36,16 +36,16 @@ services:
       - "./dapr/components/:/components"
       - "./dapr/configuration/:/configuration"
     depends_on:
-      - subscription-service
+      - subscription
 
-  client-service:
-    container_name: client-service
-    image: client-service:${TAG:-latest}
+  client:
+    container_name: client
+    image: client:${TAG:-latest}
     build:
       context: .
       dockerfile: ./ClientService/Dockerfile
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
       - NAMESPACE=demo
     ports:
@@ -54,17 +54,17 @@ services:
       - "60002:50001"
       - "9092:9090"
 
-  client-service-dapr:
-    container_name: client-service-dapr
+  client-dapr:
+    container_name: client-dapr
     image: daprio/daprd:1.11.3
-    network_mode: "service:client-service"
+    network_mode: "service:client"
     command: [ "./daprd",
-               "-app-id", "client-service",
+               "-app-id", "client",
                "-dapr-http-port", "3500",
                "-dapr-grpc-port", "50001",
                "-metrics-port", "9090",
                "-app-port", "8080",   # app
-               "-placement-host-address", "dapr-placement:50001",
+               "-placement-host-address", "dapr-placement:50005",
                "-components-path", "/components",
                "-config", "/configuration/dapr-config.yaml"
     ]
@@ -72,13 +72,13 @@ services:
       - "./dapr/components/:/components"
       - "./dapr/configuration/:/configuration"
     depends_on:
-      - client-service
+      - client
 
   dapr-placement:
     image: daprio/dapr:1.11.3
-    command: [ "./placement", "-port", "50001", "-log-level", "debug" ]
+    command: [ "./placement", "-port", "50005", "-log-level", "debug" ]
     ports:
-      - "50001:50001"
+      - "50005:50005"
 
   zipkin:
     container_name: zipkin

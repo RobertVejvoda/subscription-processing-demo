@@ -2,7 +2,7 @@ apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
   name: pubsub
-  namespace: onecop
+  namespace: {{ .Values.namespace }}
 spec:
   type: pubsub.rabbitmq
   version: v1
@@ -19,3 +19,6 @@ spec:
       value: "0"
     - name: concurrency
       value: parallel
+scopes:
+  - subscriptionService
+  - clientService

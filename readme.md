@@ -26,13 +26,13 @@ Lets process and validate incoming subscriptions by exposing microservice APIs a
 
 ### Self hosted
 
-| Service             | Application Port | Dapr sidecar HTTP port | Dapr sidecar gRPC port | Metrics port |
-|---------------------|------------------|------------------------|------------------------|--------------|
-| SubscriptionService | 5001             | 3601                   | 60001                  | 9091         |
-| ClientService       | 5002             | 3602                   | 60002                  | 9092         |
-| UnderwritingService | 5003             | 3603                   | 60003                  | 9093         |
-| PartnerService      | 5004             | 3604                   | 60004                  | 9094         |
-| ProductService      | 5005             | 3605                   | 60005                  | 9095         |
+| Service                   | Application Port | Dapr sidecar HTTP port | Dapr sidecar gRPC port | Metrics port |
+|---------------------------|------------------|------------------------|------------------------|--------------|
+| SubscriptionService       | 5001             | 3601                   | 60001                  | 9091         |
+| ClientService             | 5002             | 3602                   | 60002                  | 9092         |
+| UnderwritingService [tbd] | 5003             | 3603                   | 60003                  | 9093         |
+| PartnerService [tbd]      | 5004             | 3604                   | 60004                  | 9094         |
+| ProductService [tbd]      | 5005             | 3605                   | 60005                  | 9095         |
 
 Install Dapr and initialize in local environment: https://docs.dapr.io/getting-started/install-dapr-selfhost/
 
@@ -69,7 +69,20 @@ Run app: `docker compose -f docker-compose.yaml up --build`
 
 ### Kubernetes
 
-[todo]
+#### Dapr on Kubernetes
+
+`dapr init -k`
+`kubectl get pods --namespace dapr-system`
+
+Ensure content in %USERPROFILE%\.dapr\
+
+Deploy to K8s: `helm install subscription-demo`
+
+Execute start.ps1 in Deploy/k8s/kubectl 
+
+#### Metrics
+
+Install 
 
 ### Tests
 
