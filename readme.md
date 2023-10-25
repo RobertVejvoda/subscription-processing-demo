@@ -143,7 +143,16 @@ docker buildx build --pull --push -t localhost:6000/customer-service -f ./Custom
 docker buildx build --pull --push -t localhost:6000/subscription-service -f ./SubscriptionService/Dockerfile --platform linux/arm64,linux/arm,linux/amd64 .
 ```
 
-```terminal
-docker compose up -d
-```
+### Minikube and store images in insecure registry
 
+```terminal
+minikube start --insecure-registry "10.0.0.0/24"  
+minikube addons enable registry
+minikube addons enable dashboard  
+minikube addons enable metrics-server 
+docker run --rm -it --network=host alpine ash -c "apk add socat && socat TCP-LISTEN:5000,reuseaddr,fork TCP:$(minikube ip):5000
+docker tag customer-service:latest localhost:5000/customer-service:latest
+docker push localhost:5000/customer-service:latest 
+docker tag subscription-service:latest localhost:5000/subscription-service:latest
+docker push localhost:5000/subscription-service:latest 
+```
