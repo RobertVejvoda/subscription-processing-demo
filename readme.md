@@ -4,21 +4,25 @@
 
 Lets process and validate incoming subscriptions by exposing microservice APIs and bind them events.
 
-![image](Assets/subscription-workflow.png)
+![image](assets/subscription-workflow.png)
 
 ## Architecture
 
-![image](Assets/target_architecture.png)
+![image](assets/target_architecture.png)
 
 ## Subscription Model
 
-![image](Assets/subscription_states.png)
+![image](assets/subscription_states.png)
+
+## Events / topics
+
+![image](assets/subscription-topics.png)
 
 ## Subscription validation - underwriting process
 
-![image](Assets/underwriting.png)
+![image](assets/underwriting.png)
 
-![image](Assets/underwriting_risk.jpg)
+![image](assets/underwriting_risk.jpg)
 
 ---
 
@@ -29,7 +33,7 @@ Lets process and validate incoming subscriptions by exposing microservice APIs a
 | Service                   | Application Port | Dapr sidecar HTTP port | Dapr sidecar gRPC port | Metrics port |
 |---------------------------|------------------|------------------------|------------------------|--------------|
 | SubscriptionService       | 5001             | 3601                   | 60001                  | 9091         |
-| ClientService             | 5002             | 3602                   | 60002                  | 9092         |
+| CustomerService           | 5002             | 3602                   | 60002                  | 9092         |
 | UnderwritingService [tbd] | 5003             | 3603                   | 60003                  | 9093         |
 | PartnerService [tbd]      | 5004             | 3604                   | 60004                  | 9094         |
 | ProductService [tbd]      | 5005             | 3605                   | 60005                  | 9095         |
@@ -69,6 +73,9 @@ Run app: `docker compose -f docker-compose.yaml up --build`
 
 ### Kubernetes
 
+To be able to push and pull build images, 
+run local registry: `docker run -d -p 6000:5000 --restart=always --name registry registry:2`
+
 #### Dapr on Kubernetes
 
 `dapr init -k`
@@ -76,76 +83,67 @@ Run app: `docker compose -f docker-compose.yaml up --build`
 
 Ensure content in %USERPROFILE%\.dapr\
 
-Deploy to K8s: `helm install subscription-demo`
+Deploy to K8s: `helm install onecop`
 
 Execute start.ps1 in Deploy/k8s/kubectl 
 
 #### Metrics
 
-Install 
+Follow https://docs.dapr.io/operations/observability/metrics/
 
 ### Tests
 
 Depends on how it's run, change host.docker.internal to localhost in dapr/components folder and run in
-terminal: `dotnet run`. Dapr is automatically attached to the process.
+terminal: `dotnet run`. Dapr sidecar is automatically attached to the process.
 
 File requests.http contains REST client scripts and is perhaps better. I added a process version for each script as I
 believe it's a good rule.
 
 Run app first: `dotnet run`
 
-Run in another terminal - register client via invoking zeebe-command in Rest-Client:
+Run in another terminal - register subscription
 
 ```
-### 
-
-POST http://localhost:3601/v1.0/bindings/pubsub
-dapr-app-id: subscription-api
+POST http://localhost:5001/api/subscriptions
+dapr-app-id: subscription-service
 content-type: application/json
 
-{ 
-  "operation": "create-instance", 
-  "data": {
-    "bpmnProcessId": "Subscription_Process_Workflow", 
-    "version": 1, 
-    "variables": 
-    {
-      "firstName": "Homer",
-      "lastName": "Simpson",
-      "email": "homer.simpson@thesimpsons.movie",
-      "age": 30,
-      "loanAmount": 200000,
-      "insuredAmount": 100000
-    } 
-  } 
+{
+  "firstName": "Homer",
+  "lastName": "Simpson",
+  "email": "homer.simpson@thesimpsons.movie",
+  "age": 30,
+  "productId": "1",
+  "loanAmount": 200000,
+  "insuredAmount": 100000
 }
+```
+
+and validate
+
+```
+GET http://localhost:5001/api/subscriptions/{subscriptionId}
 ```
 
 ### Notes
 
-Controller method MUST return a value. Returning void leads to JSON parse issue. It can be solved by returning empty
-object like NullResponse.
-
 Content type MUST be specified in header: `curl -H "Content-Type: application-json" ...`
 
-For running locally dapr-app-id must be specified in header: `curl -H "dapr-app-id: client-api" ...`
+For running locally dapr-app-id must be specified in header: `curl -H "dapr-app-id: customer-service" ...`
 
 Return type of the message is passed back to global scope of Camunda variables:
 
-```terminal
-result | "Client xxx registered."
-```
 
 ### Builds and Deployments
 
 I'm using Docker buildx by default for multi-platform builds to support both platforms - linux/amd64 and linux/arm64.
 
-```
-docker buildx build --pull --push -t docker.io/robertvejvoda/client-api -f ./ClientAPI/Dockerfile --platform linux/arm64,linux/arm,linux/amd64 .
-docker buildx build --pull --push -t docker.io/robertvejvoda/subscription-api -f ./SubscriptionAPI/Dockerfile --platform linux/arm64,linux/arm,linux/amd64 .
+```terminal
+docker buildx build --pull --push -t localhost:6000/customer-service -f ./CustomerService/Dockerfile --platform linux/arm64,linux/arm,linux/amd64 .
+docker buildx build --pull --push -t localhost:6000/subscription-service -f ./SubscriptionService/Dockerfile --platform linux/arm64,linux/arm,linux/amd64 .
 ```
 
-```
-docker compose up --build -d
+```terminal
+docker compose up -d
 ```
 

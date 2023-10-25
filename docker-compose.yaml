@@ -1,0 +1,127 @@
+version: "3.7"
+
+services:
+
+  subscription-service:
+    container_name: subscription-service
+    image: subscription-service:${TAG:-latest}
+    build:
+      context: .
+      dockerfile: ./services/SubscriptionService/Dockerfile
+    environment:
+      - NAMESPACE=onecop
+    ports:
+      - "5001:8080"       # app
+      - "3601:3500"
+      - "60001:50001"
+      - "9091:9090"
+    networks:
+      - onecop
+
+  subscription-service-dapr:
+    container_name: subscription-service-dapr
+    image: daprio/daprd:1.12.0
+    network_mode: "service:subscription-service"
+    command: [ "./daprd",
+               "-app-id", "subscription-service",
+               "-dapr-http-port", "3500",
+               "-dapr-grpc-port", "50001",
+               "-metrics-port", "9090",
+               "-app-port", "8080",   # app
+               "-placement-host-address", "dapr-placement:50007",
+               "-components-path", "/components",
+               "-config", "/configuration/dapr-config.yaml"
+    ]
+    volumes:
+      - "./dapr/components/:/components"
+      - "./dapr/configuration/:/configuration"
+    depends_on:
+      - subscription-service
+      
+  customer-service:
+    container_name: customer-service
+    image: customer-service:${TAG:-latest}
+    build:
+      context: .
+      dockerfile: ./services/CustomerService/Dockerfile
+    environment:
+      - NAMESPACE=onecop
+    ports:
+      - "5002:8080"       # app
+      - "3602:3500"
+      - "60002:50001"
+      - "9092:9090"
+    networks:
+      - onecop
+
+  customer-service-dapr:
+    container_name: customer-service-dapr
+    image: daprio/daprd:1.12.0
+    network_mode: "service:customer-service"
+    command: [ "./daprd",
+               "-app-id", "customer-service",
+               "-dapr-http-port", "3500",
+               "-dapr-grpc-port", "50001",
+               "-metrics-port", "9090",
+               "-app-port", "8080",   # app
+               "-placement-host-address", "dapr-placement:50007",
+               "-components-path", "/components",
+               "-config", "/configuration/dapr-config.yaml"
+    ]
+    volumes:
+      - "./dapr/components/:/components"
+      - "./dapr/configuration/:/configuration"
+    depends_on:
+      - customer-service
+
+  dapr-placement:
+    container_name: dapr-placement
+    image: daprio/dapr:1.12.0
+    command: [ "./placement", "-port", "50007", "-log-level", "error" ]
+    ports:
+      - "50007:50007"
+        
+  zipkin:
+    container_name: zipkin
+    image: openzipkin/zipkin
+    restart: unless-stopped
+    ports:
+      - "9412:9411"
+    networks:
+      - onecop
+  
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq"
+    networks:
+      - onecop
+
+  mongo:
+    container_name: mongo
+    image: mongo:5.0.15
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/var/lib/mongo"
+    networks:
+      - onecop
+
+volumes:
+  mongo-data:
+  rabbitmq-data:
+
+  
+networks:
+  onecop:
+    name: onecop
+    driver: bridge
+     
+    
+    

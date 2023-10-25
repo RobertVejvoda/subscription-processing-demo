@@ -1,5 +1,0 @@
-# K8s namespace to deploy app in.
-namespace: onecop
-
-# Name of host where app can be accessed.
-hostName: localhost

@@ -1,0 +1,46 @@
+### asynchronous
+
+POST http://localhost:5001/api/subscriptions
+dapr-app-id: subscription-service
+content-type: application/json
+
+{
+  "firstName": "Homer",
+  "lastName": "Simpson",
+  "email": "homer.simpson@thesimpsons.movie",
+  "age": 30,
+  "productId": "1", 
+  "loanAmount": 200000,
+  "insuredAmount": 100000
+}
+
+### synchronous
+
+POST http://localhost:5001/api/subscriptions/register
+dapr-app-id: subscription-service
+content-type: application/json
+
+{
+  "firstName": "Bart",
+  "lastName": "Simpson",
+  "email": "bart.simpson@thesimpsons.movie",
+  "age": 10,
+  "productId": "1",
+  "loanAmount": 10000,
+  "insuredAmount": 10000
+}
+
+### 
+
+POST http://localhost:5002/api/customers
+dapr-app-id: customer-service
+Content-Type: application/json
+
+{
+  "firstName": "Homer",
+  "lastName": "Simpson",
+  "email": "homer.simpson@thesimpsons.movie",
+  "age": 30
+}   
+
+
