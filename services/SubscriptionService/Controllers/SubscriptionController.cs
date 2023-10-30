@@ -7,6 +7,13 @@ namespace SubscriptionService.Controllers;
 [Route("/api/subscriptions")]
 public class SubscriptionController : ControllerBase
 {
+    private readonly DaprOptions daprOptions;
+
+    public SubscriptionController(IOptions<DaprOptions> daprOptions)
+    {
+        this.daprOptions = daprOptions.Value;
+    }
+    
     [HttpGet("{subscriptionId}")]
     public async Task<ActionResult<Subscription>> Get(string subscriptionId, [FromServices] SubscriptionRepository repository)
     {
@@ -44,7 +51,7 @@ public class SubscriptionController : ControllerBase
         // trigger integration event
         var @event = new SubscriptionRequestReceivedIntegrationEvent(key, command.FirstName, command.LastName, 
             command.Email, command.Age, command.LoanAmount, command.InsuredAmount);
-        await eventBus.PublishAsync(Resources.Bindings.PubSub, Resources.Topics.Subscription.Received, @event);
+        await eventBus.PublishAsync(daprOptions.PubSub, "subscription-received", @event);
 
         var url = UrlEncoder.Default.Encode(key);
         return Accepted(url);
@@ -81,7 +88,7 @@ public class SubscriptionController : ControllerBase
         await repository.AddAsync(subscription);
 
         // request assessment
-        await eventBus.PublishAsync(Resources.Bindings.PubSub, Resources.Topics.Subscription.AssessmentRequested,
+        await eventBus.PublishAsync(daprOptions.PubSub, "subscription-assessment-requested",
             new SubscriptionAssessmentRequestedIntegrationEvent(key, customer, command.LoanAmount,
                 command.InsuredAmount));
 
@@ -93,20 +100,17 @@ public class SubscriptionController : ControllerBase
     // bind topics to handlers
     // 
     
-    [HttpPost("OnCustomerRegistered")]
-    [Topic(Resources.Bindings.PubSub, Resources.Topics.Customer.Registered)]
+    [HttpPost("/customer-registered")]
     public Task HandleAsync([Required] CustomerRegisteredIntegrationEvent @event,
         CustomerIntegrationEventHandler handler)
         => handler.Handle(@event);
    
-    [HttpPost("OnSubscriptionAssessmentRequested")]
-    [Topic(Resources.Bindings.PubSub, Resources.Topics.Subscription.AssessmentRequested)]
+    [HttpPost("/subscription-assessment-requested")]
     public Task HandleAsync([Required] SubscriptionAssessmentRequestedIntegrationEvent @event,
         [FromServices] SubscriptionIntegrationEventHandler handler)
         => handler.Handle(@event);
     
-    [HttpPost("OnSubscriptionAssessmentFinished")]
-    [Topic(Resources.Bindings.PubSub, Resources.Topics.Subscription.AssessmentFinished)]
+    [HttpPost("/subscription-assessment-finished")]
     public Task HandleAsync([Required] SubscriptionAssessmentFinishedIntegrationEvent @event,
         [FromServices] SubscriptionIntegrationEventHandler handler)
         => handler.Handle(@event);

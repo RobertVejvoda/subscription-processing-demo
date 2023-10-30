@@ -14,11 +14,13 @@ public class CustomerIntegrationEventHandler : IIntegrationEventHandler<Customer
     private readonly ProductProxyService productProxyService;
     private readonly IEventBus eventBus;
     private readonly ILogger<CustomerIntegrationEventHandler> logger;
+    private readonly DaprOptions daprOptions;
 
     public CustomerIntegrationEventHandler(
         SubscriptionRepository subscriptionRepository,
         ProductProxyService productProxyService,
         IEventBus eventBus,
+        IOptions<DaprOptions> daprOptions,
         ILogger<CustomerIntegrationEventHandler> logger
     )
     {
@@ -26,6 +28,7 @@ public class CustomerIntegrationEventHandler : IIntegrationEventHandler<Customer
         this.productProxyService = productProxyService;
         this.eventBus = eventBus;
         this.logger = logger;
+        this.daprOptions = daprOptions.Value;
     }
 
     public async Task Handle(CustomerRegisteredIntegrationEvent @event)
@@ -43,8 +46,8 @@ public class CustomerIntegrationEventHandler : IIntegrationEventHandler<Customer
         
         // request assessment
         await eventBus.PublishAsync(
-            Resources.Bindings.PubSub, 
-            Resources.Topics.Subscription.AssessmentRequested, 
+            daprOptions.PubSub, 
+            "subscription-assessment-requested", 
             new SubscriptionAssessmentRequestedIntegrationEvent(
                 subscription.Id, 
                 subscription.Customer!, 

@@ -1,5 +1,3 @@
-using CustomerService.Repository;
-
 namespace CustomerService.Events;
 
 public record SubscriptionRequestReceivedIntegrationEvent(
@@ -24,11 +22,13 @@ public class SubscriptionIntegrationEventHandler
 {
     private readonly CustomerRepository repository;
     private readonly IEventBus eventBus;
+    private readonly DaprOptions daprOptions;
 
-    public SubscriptionIntegrationEventHandler(CustomerRepository repository, IEventBus eventBus)
+    public SubscriptionIntegrationEventHandler(CustomerRepository repository, IEventBus eventBus, IOptions<DaprOptions> daprOptions)
     {
         this.repository = repository;
         this.eventBus = eventBus;
+        this.daprOptions = daprOptions.Value;
     }
     
     public async Task Handle(SubscriptionRequestReceivedIntegrationEvent @event)
@@ -43,7 +43,7 @@ public class SubscriptionIntegrationEventHandler
             await repository.AddAsync(customer);
         }
 
-        await eventBus.PublishAsync(Resources.Bindings.PubSub, Resources.Topics.Customer.Registered,
+        await eventBus.PublishAsync(daprOptions.PubSub, "customer-registered",
             new CustomerRegisteredIntegrationEvent(
                 @event.SubscriptionId,
                 customer.Id,

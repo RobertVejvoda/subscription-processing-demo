@@ -1,0 +1,12 @@
+apiVersion: dapr.io/v2alpha1
+kind: Subscription
+metadata:
+  name: subscription-assessment-requested
+spec:
+  topic: subscription-assessment-requested
+  routes:
+    default: /subscription-assessment-requested
+  pubsubname: pubsub-rabbitmq
+scopes:
+  - subscription-service
+

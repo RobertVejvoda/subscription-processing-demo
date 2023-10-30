@@ -8,15 +8,18 @@ public class SubscriptionIntegrationEventHandler :
     private readonly SubscriptionRepository repository;
     private readonly IEventBus eventBus;
     private readonly ILogger<SubscriptionIntegrationEventHandler> logger;
+    private readonly DaprOptions daprOptions;
 
     public SubscriptionIntegrationEventHandler(
         SubscriptionRepository repository, 
         IEventBus eventBus, 
+        IOptions<DaprOptions> daprOptions,
         ILogger<SubscriptionIntegrationEventHandler> logger)
     {
         this.repository = repository;
         this.eventBus = eventBus;
         this.logger = logger;
+        this.daprOptions = daprOptions.Value;
     }
     
     public async Task Handle(SubscriptionAssessmentRequestedIntegrationEvent @event)
@@ -51,7 +54,7 @@ public class SubscriptionIntegrationEventHandler :
         logger.LogInformation("{CustomerId} - {SubscriptionId} - assessed: {Risk} -> {Reason}", 
             @event.Customer.Id, @event.SubscriptionId, risk, reason);
 
-        await eventBus.PublishAsync(Resources.Bindings.PubSub, Resources.Topics.Subscription.AssessmentFinished,
+        await eventBus.PublishAsync(daprOptions.PubSub, "subscription-assessment-finished",
             new SubscriptionAssessmentFinishedIntegrationEvent(@event.SubscriptionId, new UnderwritingResult(result.Name, reason)));
     }
     

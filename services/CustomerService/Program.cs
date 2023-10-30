@@ -1,6 +1,3 @@
-using HealthChecks;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -15,6 +12,7 @@ builder.Services.AddControllers().AddDapr(builder => builder.UseJsonSerializatio
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     }));
 
 builder.Services.AddDaprClient();
@@ -33,6 +31,7 @@ builder.Services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "Customer API", Version = "v1" }); });
 
+builder.Services.Configure<DaprOptions>(builder.Configuration.GetSection(DaprOptions.Dapr));
 
 var app = builder.Build();
 

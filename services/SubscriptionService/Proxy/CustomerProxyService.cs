@@ -14,7 +14,7 @@ public class CustomerProxyService
     public async Task<Customer> RegisterCustomerAsync(RegisterCustomerCommand command)
     {
         var customer = await daprClient.InvokeMethodAsync<RegisterCustomerCommand,Customer>(
-            Resources.Apps.CustomerService,
+            "customer-service",
             "api/customers",
             command);
 

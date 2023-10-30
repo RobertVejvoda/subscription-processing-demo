@@ -1,8 +1,4 @@
-using System.Text.Json;
-using EventBus;
-using HealthChecks;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.OpenApi.Models;
+using DaprOptions = SubscriptionService.DaprOptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +17,7 @@ builder.Services.AddControllers().AddDapr(builder => builder.UseJsonSerializatio
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     }));
 
 builder.Services.AddDaprClient();
@@ -42,6 +39,7 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Subscription API", Version = "v1" });
 });
 
+builder.Services.Configure<DaprOptions>(builder.Configuration.GetSection(DaprOptions.Dapr));
 
 var app = builder.Build();
 

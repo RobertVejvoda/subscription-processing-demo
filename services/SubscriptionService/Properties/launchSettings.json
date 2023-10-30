@@ -8,7 +8,9 @@
       "launchUrl": "swagger",
       "applicationUrl": "http://::5001",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DAPR_BINDINGS_STATESTORE": "statestore-mongo",
+        "DAPR_BINDINGS_PUBSUB": "pubsub-rabbitmq"
       }
     }
   }

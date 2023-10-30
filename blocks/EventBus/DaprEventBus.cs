@@ -25,4 +25,20 @@ public class DaprEventBus : IEventBus
         // that all event fields are properly serialized.
         await dapr.PublishEventAsync(pubSubName, topicName, (object)@event);
     }
+    
+    public async Task PublishAsync<TIntegrationEvent>(string topicName, TIntegrationEvent @event)
+        where TIntegrationEvent : IntegrationEvent
+    {
+        var pubSubName = Environment.GetEnvironmentVariable("DAPR_BINDINGS_PUBSUB");
+        if (string.IsNullOrWhiteSpace(pubSubName))
+            throw new Exception("Environment variable DAPR_BINDINGS_PUBSUB is not set.");
+        
+        logger.LogInformation("Publishing event {@Event} to {PubSubName}.{TopicName}", @event,
+            pubSubName, topicName);
+
+        // We need to make sure that we pass the concrete type to PublishEventAsync,
+        // which can be accomplished by casting the event to dynamic. This ensures
+        // that all event fields are properly serialized.
+        await dapr.PublishEventAsync(pubSubName, topicName, (object)@event);
+    }
 }

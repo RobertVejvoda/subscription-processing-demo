@@ -1,3 +1,5 @@
+using Dapr.Client;
+
 namespace CustomerService.Controllers;
 
 [ApiController]
@@ -46,8 +48,9 @@ public class CustomerController : ControllerBase
         return Ok(customer);
     }
 
-    [HttpPost("OnSubscriptionRequestReceived")]
-    [Topic(Resources.Bindings.PubSub, "subscription-received")]
+    [HttpPost("/subscription-received")]
+    // [Topic(Resources.Bindings.PubSub, "subscription-received")]
+    // defined in configuration
     public Task HandleAsync([Required] SubscriptionRequestReceivedIntegrationEvent @event,
         [FromServices] SubscriptionIntegrationEventHandler handler)
         => handler.Handle(@event);

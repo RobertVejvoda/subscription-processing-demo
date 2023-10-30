@@ -3,18 +3,20 @@ namespace SubscriptionService.Repository;
 public class SubscriptionRepository
 {
     private readonly DaprClient daprClient;
+    private readonly DaprOptions daprOptions;
 
-    public SubscriptionRepository(DaprClient daprClient)
+    public SubscriptionRepository(DaprClient daprClient, IOptions<DaprOptions> daprOptions)
     {
         this.daprClient = daprClient;
+        this.daprOptions = daprOptions.Value;
     }
     
     public Task AddAsync(Subscription subscription)
-        => daprClient.SaveStateAsync(Resources.Bindings.StateStore,
+        => daprClient.SaveStateAsync(daprOptions.StateStore,
             subscription.Id,
             subscription);
 
     public Task<Subscription> GetAsync(string subscriptionId)
-        => daprClient.GetStateAsync<Subscription>(Resources.Bindings.StateStore,
+        => daprClient.GetStateAsync<Subscription>(daprOptions.StateStore,
             subscriptionId);
 }

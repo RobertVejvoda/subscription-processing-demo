@@ -65,6 +65,12 @@ In fact, only the placement service is needed here, so Dapr can be initialized a
 
 ---
 
+Set up MongoDB statestore:
+
+```terminal
+docker run --name mongo -p 27017:27017 -d mongo
+```
+
 ### Docker
 
 Ensure worker files in dapr/components folder use host.docker.internal instead of localhost.
@@ -139,8 +145,8 @@ Return type of the message is passed back to global scope of Camunda variables:
 I'm using Docker buildx by default for multi-platform builds to support both platforms - linux/amd64 and linux/arm64.
 
 ```terminal
-docker buildx build --pull --push -t localhost:6000/customer-service -f ./CustomerService/Dockerfile --platform linux/arm64,linux/arm,linux/amd64 .
-docker buildx build --pull --push -t localhost:6000/subscription-service -f ./SubscriptionService/Dockerfile --platform linux/arm64,linux/arm,linux/amd64 .
+docker buildx build --pull --push -t localhost:5000/customer-service -f ./CustomerService/Dockerfile --platform linux/arm64,linux/arm,linux/amd64 .
+docker buildx build --pull --push -t localhost:5000/subscription-service -f ./SubscriptionService/Dockerfile --platform linux/arm64,linux/arm,linux/amd64 .
 ```
 
 ### Minikube and store images in insecure registry
