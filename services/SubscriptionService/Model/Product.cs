@@ -1,18 +1,10 @@
-using Core.Types;
-
 namespace SubscriptionService.Model;
 
 public record Product(
-    [Required]string ProductId, 
-    string Name, 
-    DateRange ValidityPeriod, 
-    string State)
+    [Required] string Id,
+    [Required] string Name,
+    [Required] DateRange ValidityPeriod,
+    [Required] string State)
 {
-    public bool IsActive(DateTime decisiveDate)
-    {
-        if (ValidityPeriod == null)
-            throw new InvalidOperationException();
-        
-        return ValidityPeriod.DateStart <= decisiveDate && ValidityPeriod.DateEnd > decisiveDate;
-    }
+    public bool IsActiveOn(DateTime date) => ValidityPeriod.IsInRange(date);
 }

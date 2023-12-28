@@ -6,7 +6,8 @@ spec:
   topic: subscription-assessment-finished
   routes:
     default: /subscription-assessment-finished
-  pubsubname: pubsub-rabbitmq
+  pubsubname: pubsub
 scopes:
   - subscription-service
+  - ods-service
 

@@ -1,5 +1,5 @@
 namespace SubscriptionService.Model;
 
 public record UnderwritingResult(
-    [Required] string UnderwritingResultState, 
+    [Required] UnderwritingResultState State, 
     [Required] string Reason);

@@ -6,7 +6,7 @@ spec:
   topic: subscription-received
   routes:
     default: /subscription-received
-  pubsubname: pubsub-rabbitmq
+  pubsubname: pubsub
 scopes:
   - customer-service
 

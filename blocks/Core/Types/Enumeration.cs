@@ -76,5 +76,37 @@ namespace Core.Types
 
             throw new ArgumentException("Object is not Enumeration");
         }
+
+        public static bool operator ==(Enumeration x, Enumeration y)
+        {
+            return x.Equals(y);
+        }
+
+        public static bool operator !=(Enumeration x, Enumeration y)
+        {
+            return !(x == y);
+        }
+        
+        public static bool operator <(Enumeration x, Enumeration y)
+        {
+            return x.Id < y.Id;
+        }
+
+        public static bool operator <=(Enumeration x, Enumeration y)
+        {
+            return x.Id <= y.Id;
+        }
+
+        public static bool operator >(Enumeration x, Enumeration y)
+        {
+            return x.Id > y.Id;
+        }
+
+        public static bool operator >=(Enumeration x, Enumeration y)
+        {
+            return x.Id >= y.Id;
+        }
+
+        public static implicit operator int(Enumeration x) => x.Id;
     }
 }

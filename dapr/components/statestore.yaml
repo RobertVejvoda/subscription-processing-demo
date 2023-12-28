@@ -1,7 +1,7 @@
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: statestore-mongo
+  name: statestore
 spec:
   type: state.mongodb
   version: v1

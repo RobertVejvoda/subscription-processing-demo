@@ -27,30 +27,26 @@ namespace Camunda
             return await daprClient.InvokeBindingAsync<CreateInstanceRequest, CreateInstanceResponse>(ZeebeCommand,
                 Commands.CreateInstance, request);
         }
+        
+        public async Task<CreateInstanceResponse> CreateInstanceWithResultAsync(CreateInstanceWithResultRequest request)
+        {
+            if (request.BpmnProcessId == null)
+            {
+                throw new ArgumentException("Set bpmnProcessId.");
+            }
 
-        public Task CancelInstanceAsync(CancelInstanceRequest request)
-            => daprClient.InvokeBindingAsync(ZeebeCommand, Commands.CancelInstance, request);
+            return await daprClient.InvokeBindingAsync<CreateInstanceWithResultRequest, CreateInstanceResponse>(ZeebeCommand,
+                Commands.CreateInstance, request);
+        }
+
 
         public Task<SetVariablesResponse> SetVariablesAsync(SetVariablesRequest request)
             => daprClient.InvokeBindingAsync<SetVariablesRequest, SetVariablesResponse>(ZeebeCommand,
                 Commands.SetVariables, request);
 
-        public Task ResolveIncidentAsync(ResolveIncident request)
-            => daprClient.InvokeBindingAsync(ZeebeCommand, Commands.ResolveIncident, request);
-
         public Task<PublishMessageResponse> PublishMessageAsync(PublishMessageRequest request)
             => daprClient.InvokeBindingAsync<PublishMessageRequest, PublishMessageResponse>(ZeebeCommand,
                 Commands.PublishMessage, request);
-
-        public Task<IList<ActivatedJob>> ActivateJobsAsync(ActivateJobsRequest request)
-            => daprClient.InvokeBindingAsync<ActivateJobsRequest, IList<ActivatedJob>>(ZeebeCommand,
-                Commands.ActivateJobs, request);
-
-        public Task CompleteJobAsync(CompleteJobRequest request)
-            => daprClient.InvokeBindingAsync(ZeebeCommand, Commands.CompleteJob, request);
-
-        public Task FailJobAsync(FailJobRequest request)
-            => daprClient.InvokeBindingAsync(ZeebeCommand, Commands.FailJob, request);
 
         public Task UpdateJobRetriesAsync(UpdateJobRetriesRequest request)
             => daprClient.InvokeBindingAsync(ZeebeCommand, Commands.UpdateJobRetries, request);
@@ -58,7 +54,5 @@ namespace Camunda
         public Task ThrowErrorAsync(ThrowErrorRequest request)
             => daprClient.InvokeBindingAsync(ZeebeCommand, Commands.ThrowError, request);
 
-        public Task<TopologyResponse> GetTopologyAsync()
-            => daprClient.InvokeBindingAsync<object, TopologyResponse>(ZeebeCommand, Commands.Topology, new { });
     }
 }

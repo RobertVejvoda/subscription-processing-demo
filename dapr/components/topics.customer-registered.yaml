@@ -6,6 +6,7 @@ spec:
   topic: customer-registered
   routes:
     default: /customer-registered
-  pubsubname: pubsub-rabbitmq
+  pubsubname: pubsub
 scopes:
   - subscription-service
+  - ods-service

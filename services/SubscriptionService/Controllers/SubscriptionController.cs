@@ -1,5 +1,7 @@
-using System.Text.Encodings.Web;
+using Camunda.Abstractions;
+using Camunda.Command;
 using SubscriptionService.Commands;
+using Subscription = SubscriptionService.Model.Subscription;
 
 namespace SubscriptionService.Controllers;
 
@@ -7,15 +9,15 @@ namespace SubscriptionService.Controllers;
 [Route("/api/subscriptions")]
 public class SubscriptionController : ControllerBase
 {
-    private readonly DaprOptions daprOptions;
+    private readonly SubscriptionRepository repository;
 
-    public SubscriptionController(IOptions<DaprOptions> daprOptions)
+    public SubscriptionController(SubscriptionRepository repository)
     {
-        this.daprOptions = daprOptions.Value;
+        this.repository = repository;
     }
     
     [HttpGet("{subscriptionId}")]
-    public async Task<ActionResult<Subscription>> Get(string subscriptionId, [FromServices] SubscriptionRepository repository)
+    public async Task<ActionResult<SubscriptionModel>> Get(string subscriptionId)
     {
         Guard.ArgumentNotNullOrEmpty(subscriptionId);
 
@@ -23,96 +25,120 @@ public class SubscriptionController : ControllerBase
         if (subscription == null)
             return NotFound();
 
-        return Ok(subscription);
+        return Ok(subscription.ToModel());
     }
     
-    // fully asynchronous subscription processing
+    // subscription processing
     [HttpPost]
-    public async Task<ActionResult<string>> Register(
-        [Required] RegisterSubscriptionCommand command, 
-        [FromServices] SubscriptionRepository repository,
-        [FromServices] IEventBus eventBus)
+    public async Task<ActionResult<int>> Register(
+        [Required] RegisterSubscriptionRequestCommand command,
+        [FromServices] IZeebeClient zeebeClient)
     {
-        // todo: validate parameters
-        
-        // create a new subscription
-        var key = Subscription.Key(Guid.NewGuid());
-        var subscription = new Subscription(
-            key,
-            command.ProductId,
-            command.LoanAmount,
-            command.InsuredAmount,
-            SubscriptionState.Registered.Name,
-            null,
-            null,
-            null);
-        await repository.AddAsync(subscription);
-        
-        // trigger integration event
-        var @event = new SubscriptionRequestReceivedIntegrationEvent(key, command.FirstName, command.LastName, 
-            command.Email, command.Age, command.LoanAmount, command.InsuredAmount);
-        await eventBus.PublishAsync(daprOptions.PubSub, "subscription-received", @event);
+        // trigger processing in Camunda
+        var response = await zeebeClient.CreateInstanceAsync(
+            new CreateInstanceRequest("Subscription_Process_Workflow",
+                null, null, command));
 
-        var url = UrlEncoder.Default.Encode(key);
-        return Accepted(url);
+        return Ok(new{ response.ProcessInstanceKey });
     }
     
-     
-    //  synchronous subscription processing, but assessment is still async
-    [HttpPost("register")]
-    public async Task<ActionResult<string>> RegisterSync(
-        [Required] RegisterSubscriptionCommand command, 
-        [FromServices] CustomerProxyService customerProxy,
-        [FromServices] ProductProxyService productProxyService,
-        [FromServices] IEventBus eventBus,
-        [FromServices] SubscriptionRepository repository)
+    [HttpPost("/register")]
+    public async Task<ActionResult<SubscriptionModel>> Register(
+        [Required] RegisterSubscriptionCommand command)
     {
-        // get customer
-        var customer = await customerProxy.RegisterCustomerAsync(
-            new RegisterCustomerCommand(command.FirstName, command.LastName, command.Email, command.Age));
-    
-        // get product
-        var product = productProxyService.GetProduct(command.ProductId);
-        
-        // create a new subscription
-        var key = Subscription.Key(Guid.NewGuid());
-        var subscription = new Subscription(
-            key,
-            command.ProductId,
-            command.LoanAmount,
-            command.InsuredAmount,
-            SubscriptionState.Registered.Name,
-            customer,
-            product,
-            null);
-        await repository.AddAsync(subscription);
+        // register a new subscription
+        var subscription = new Subscription(command.ProductId, command.LoanAmount, command.InsuredAmount);
+        subscription.Register();
+        await repository.AddAsync(subscription, command.ProcessInstanceKey);
 
-        // request assessment
-        await eventBus.PublishAsync(daprOptions.PubSub, "subscription-assessment-requested",
-            new SubscriptionAssessmentRequestedIntegrationEvent(key, customer, command.LoanAmount,
-                command.InsuredAmount));
-
-        var url = UrlEncoder.Default.Encode(key);
-        return Created(url, key);
+        // set object back to Camunda
+        return Ok(subscription.ToModel());
     }
 
-    //
-    // bind topics to handlers
-    // 
-    
-    [HttpPost("/customer-registered")]
-    public Task HandleAsync([Required] CustomerRegisteredIntegrationEvent @event,
-        CustomerIntegrationEventHandler handler)
-        => handler.Handle(@event);
-   
-    [HttpPost("/subscription-assessment-requested")]
-    public Task HandleAsync([Required] SubscriptionAssessmentRequestedIntegrationEvent @event,
-        [FromServices] SubscriptionIntegrationEventHandler handler)
-        => handler.Handle(@event);
-    
-    [HttpPost("/subscription-assessment-finished")]
-    public Task HandleAsync([Required] SubscriptionAssessmentFinishedIntegrationEvent @event,
-        [FromServices] SubscriptionIntegrationEventHandler handler)
-        => handler.Handle(@event);
+    [HttpPost("/normalize")]
+    public async Task<ActionResult<SubscriptionModel>> Normalize(
+        [Required] NormalizeSubscriptionCommand command,
+        [FromServices] ProductProxyService productService)
+    {
+        var subscription = await repository.GetAsync(command.SubscriptionId);
+        if (subscription == null)
+            return NotFound();
+        
+        subscription.Normalize(productService);
+        await repository.AddAsync(subscription, command.ProcessInstanceKey);
 
+        return Ok(subscription.ToModel());
+    }
+    
+    [HttpPost("/validate")]
+    public async Task<ActionResult<SubscriptionModel>> Validate(
+        [Required] ValidateSubscriptionCommand command,
+        [FromServices] IZeebeClient zeebeClient,
+        [FromServices] IHttpContextAccessor httpContextAccessor)
+    {
+        var subscription = await repository.GetAsync(command.SubscriptionId);
+        if (subscription == null)
+            return BadRequest();
+
+        subscription.CustomerId = command.CustomerId;
+        var validationResult = subscription.Validate();
+        await repository.AddAsync(subscription, command.ProcessInstanceKey);
+
+        if (validationResult.IsValid) 
+            return Ok(subscription.ToModel());
+
+        // identify current job
+        var jobKey = httpContextAccessor.HttpContext?.Request.Headers["X-Zeebe-Process-Instance-Key"];
+        if (!jobKey.HasValue)
+            return BadRequest();
+
+        // throw business error
+        var throwErrorRequest = new ThrowErrorRequest(long.Parse(jobKey.Value!), 
+            "SUBSCRIPTION_INVALID", validationResult.Reason);
+        await zeebeClient.ThrowErrorAsync(throwErrorRequest);
+
+        return Ok(subscription.ToModel());
+    }
+    
+    [HttpPost("/accept")]
+    public async Task<ActionResult<SubscriptionModel>> Accept(
+        [Required] AcceptSubscriptionCommand command)
+    {
+        var subscription = await repository.GetAsync(command.SubscriptionId);
+        if (subscription == null)
+            return NotFound();
+        
+        subscription.Accept("well, accepted!");
+        await repository.AddAsync(subscription, command.ProcessInstanceKey);
+
+        return Ok(subscription.ToModel());
+    }
+    
+    [HttpPost("/reject")]
+    public async Task<ActionResult<SubscriptionModel>> Reject(
+        [Required] RejectSubscriptionCommand command)
+    {
+        var subscription = await repository.GetAsync(command.SubscriptionId);
+        if (subscription == null)
+            return NotFound();
+        
+        subscription.Reject(command.Reason);
+        await repository.AddAsync(subscription, command.ProcessInstanceKey);
+
+        return Ok(subscription.ToModel());
+    }
+    
+    [HttpPost("/suspend")]
+    public async Task<ActionResult<SubscriptionModel>> Suspend(
+        [Required] SuspendSubscriptionCommand command)
+    {
+        var subscription = await repository.GetAsync(command.SubscriptionId);
+        if (subscription == null)
+            return NotFound();
+        
+        subscription.Suspend(command.Reason);
+        await repository.AddAsync(subscription, command.ProcessInstanceKey);
+
+        return Ok(subscription.ToModel());
+    }
 }

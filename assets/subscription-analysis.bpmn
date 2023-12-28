@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0iuz2kw" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.18.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.3.0">
+  <bpmn:process id="subscripion_analysis_process_1gvb6cf" name="Subscription analysis process" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="Analyse subscription">
+      <bpmn:outgoing>Flow_1u4oobr</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:businessRuleTask id="Activity_17v4hw5" name="Analyze Subscription">
+      <bpmn:extensionElements>
+        <zeebe:calledDecision decisionId="underwritingDecision" resultVariable="underwritingDecision" />
+        <zeebe:ioMapping>
+          <zeebe:output source="=&#34;In analysis&#34;" target="state" />
+          <zeebe:output source="=underwritingDecision.underwritingResult" target="underwritingResult" />
+          <zeebe:output source="=underwritingDecision.messageToClient" target="messageToClient" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1u4oobr</bpmn:incoming>
+      <bpmn:incoming>Flow_1wry6k6</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ce2s8g</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:exclusiveGateway id="Gateway_1nohqiy" name="Subscription analysis result?" default="Flow_0fjfweb">
+      <bpmn:incoming>Flow_1ce2s8g</bpmn:incoming>
+      <bpmn:outgoing>Flow_05xcdnn</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0fjfweb</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1ce2s8g" sourceRef="Activity_17v4hw5" targetRef="Gateway_1nohqiy" />
+    <bpmn:sequenceFlow id="Flow_1u4oobr" sourceRef="StartEvent_1" targetRef="Activity_17v4hw5" />
+    <bpmn:sendTask id="Activity_143j4cf" name="Request Information">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="request-information" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_05xcdnn</bpmn:incoming>
+      <bpmn:outgoing>Flow_0k01rgg</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:receiveTask id="Activity_0dwutth" name="Information received" messageRef="Message_102sj6q">
+      <bpmn:incoming>Flow_0k01rgg</bpmn:incoming>
+      <bpmn:outgoing>Flow_1wry6k6</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:sequenceFlow id="Flow_05xcdnn" sourceRef="Gateway_1nohqiy" targetRef="Activity_143j4cf">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=underwritingResult="pending"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0k01rgg" sourceRef="Activity_143j4cf" targetRef="Activity_0dwutth" />
+    <bpmn:sequenceFlow id="Flow_1wry6k6" sourceRef="Activity_0dwutth" targetRef="Activity_17v4hw5" />
+    <bpmn:endEvent id="Event_03g808i" name="Subscription analysis finished">
+      <bpmn:incoming>Flow_0fjfweb</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0fjfweb" sourceRef="Gateway_1nohqiy" targetRef="Event_03g808i" />
+  </bpmn:process>
+  <bpmn:message id="Message_102sj6q" name="on-information-received">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=subscriptionId" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="subscripion_analysis_process_1gvb6cf">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="159" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="169" y="202" width="59" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1hpqehj_di" bpmnElement="Activity_17v4hw5">
+        <dc:Bounds x="310" y="137" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0iftyw2" bpmnElement="Gateway_1nohqiy" isMarkerVisible="true">
+        <dc:Bounds x="535" y="152" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="522" y="106" width="76" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_03g808i_di" bpmnElement="Event_03g808i">
+        <dc:Bounds x="672" y="159" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="655" y="202" width="81" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_16vzqw6_di" bpmnElement="Activity_143j4cf">
+        <dc:Bounds x="510" y="320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_04h2xoo_di" bpmnElement="Activity_0dwutth">
+        <dc:Bounds x="310" y="320" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1ce2s8g_di" bpmnElement="Flow_1ce2s8g">
+        <di:waypoint x="410" y="177" />
+        <di:waypoint x="535" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1u4oobr_di" bpmnElement="Flow_1u4oobr">
+        <di:waypoint x="215" y="177" />
+        <di:waypoint x="310" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05xcdnn_di" bpmnElement="Flow_05xcdnn">
+        <di:waypoint x="560" y="202" />
+        <di:waypoint x="560" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0k01rgg_di" bpmnElement="Flow_0k01rgg">
+        <di:waypoint x="510" y="360" />
+        <di:waypoint x="410" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1wry6k6_di" bpmnElement="Flow_1wry6k6">
+        <di:waypoint x="360" y="320" />
+        <di:waypoint x="360" y="217" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0fjfweb_di" bpmnElement="Flow_0fjfweb">
+        <di:waypoint x="585" y="177" />
+        <di:waypoint x="672" y="177" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

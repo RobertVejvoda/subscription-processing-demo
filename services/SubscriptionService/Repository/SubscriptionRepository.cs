@@ -1,22 +1,26 @@
 namespace SubscriptionService.Repository;
 
-public class SubscriptionRepository
+public class SubscriptionRepository(DaprClient daprClient)
 {
-    private readonly DaprClient daprClient;
-    private readonly DaprOptions daprOptions;
+    private const string StateStore = "statestore";
 
-    public SubscriptionRepository(DaprClient daprClient, IOptions<DaprOptions> daprOptions)
+    public async Task AddAsync(Subscription subscription, string processInstanceKey)
     {
-        this.daprClient = daprClient;
-        this.daprOptions = daprOptions.Value;
+        var model = subscription.ToModel();
+        model.ProcessInstanceKey = processInstanceKey;
+        var key = $"S-{subscription.SubscriptionId}";
+        await daprClient.SaveStateAsync(StateStore, key, model);
     }
-    
-    public Task AddAsync(Subscription subscription)
-        => daprClient.SaveStateAsync(daprOptions.StateStore,
-            subscription.Id,
-            subscription);
 
-    public Task<Subscription> GetAsync(string subscriptionId)
-        => daprClient.GetStateAsync<Subscription>(daprOptions.StateStore,
-            subscriptionId);
+
+    public async Task<Subscription?> GetAsync(string subscriptionId)
+    {
+        var key = $"S-{subscriptionId}";
+        var model = await daprClient.GetStateAsync<SubscriptionModel>(StateStore, key);
+        if (model == null)
+            return null;
+
+        var subscription = Subscription.FromModel(model);
+        return subscription;
+    }
 }

@@ -1,31 +1,14 @@
-using DaprOptions = SubscriptionService.DaprOptions;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddSingleton<IDateTimeProvider, UtcDateTimeProvider>();
-builder.Services.AddScoped<SubscriptionRepository>();
-builder.Services.AddScoped<ProductProxyService>();
-builder.Services.AddScoped<CustomerProxyService>();
-builder.Services.AddScoped<SubscriptionIntegrationEventHandler>();
-builder.Services.AddScoped<CustomerIntegrationEventHandler>();
-builder.Services.AddScoped<IEventBus, DaprEventBus>();
+builder.Services.AddControllers()
+    .AddDapr(client => client.UseJsonSerializationOptions(new JsonSerializerOptions(JsonSerializerDefaults.Web)));
 
 // Add services to the container.
-builder.Services.AddControllers().AddDapr(builder => builder.UseJsonSerializationOptions(
-    new JsonSerializerOptions
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        PropertyNameCaseInsensitive = true,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-    }));
-
-builder.Services.AddDaprClient();
-
-if (builder.Environment.IsDevelopment())
-{
-    builder.Services.AddDaprSidekick(builder.Configuration);
-}
+builder.Services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddScoped<SubscriptionRepository>();
+builder.Services.AddScoped<ProductProxyService>();
+builder.Services.AddScoped<IEventBus, DaprEventBus>();
 
 builder.Services
     .AddHealthChecks()
@@ -38,8 +21,6 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Subscription API", Version = "v1" });
 });
-
-builder.Services.Configure<DaprOptions>(builder.Configuration.GetSection(DaprOptions.Dapr));
 
 var app = builder.Build();
 
@@ -54,9 +35,7 @@ app.UseSwaggerUI(c =>
 });
 
 app.UseHealthChecks("/healthz");
-app.UseCloudEvents();
-app.UseRouting();
-app.MapSubscribeHandler(); 
+
 app.MapControllers();
 
 app.Run();

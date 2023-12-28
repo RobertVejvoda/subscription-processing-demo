@@ -9,8 +9,8 @@
       "applicationUrl": "http://::5002",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "DAPR_BINDINGS_STATESTORE": "statestore-mongo",
-        "DAPR_BINDINGS_PUBSUB": "pubsub-rabbitmq"
+        "DAPR_BINDINGS_STATESTORE": "statestore",
+        "DAPR_BINDINGS_PUBSUB": "pubsub"
       }
     }
   }

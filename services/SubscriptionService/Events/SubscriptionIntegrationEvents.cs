@@ -1,4 +1,5 @@
 using Core.Types;
+using SubscriptionService.Domain;
 
 namespace SubscriptionService.Events;
 
@@ -8,18 +9,15 @@ public class SubscriptionIntegrationEventHandler :
     private readonly SubscriptionRepository repository;
     private readonly IEventBus eventBus;
     private readonly ILogger<SubscriptionIntegrationEventHandler> logger;
-    private readonly DaprOptions daprOptions;
 
     public SubscriptionIntegrationEventHandler(
         SubscriptionRepository repository, 
         IEventBus eventBus, 
-        IOptions<DaprOptions> daprOptions,
         ILogger<SubscriptionIntegrationEventHandler> logger)
     {
         this.repository = repository;
         this.eventBus = eventBus;
         this.logger = logger;
-        this.daprOptions = daprOptions.Value;
     }
     
     public async Task Handle(SubscriptionAssessmentRequestedIntegrationEvent @event)
@@ -54,7 +52,7 @@ public class SubscriptionIntegrationEventHandler :
         logger.LogInformation("{CustomerId} - {SubscriptionId} - assessed: {Risk} -> {Reason}", 
             @event.Customer.Id, @event.SubscriptionId, risk, reason);
 
-        await eventBus.PublishAsync(daprOptions.PubSub, "subscription-assessment-finished",
+        await eventBus.PublishAsync("pubsub", "subscription-assessment-finished",
             new SubscriptionAssessmentFinishedIntegrationEvent(@event.SubscriptionId, new UnderwritingResult(result.Name, reason)));
     }
     
@@ -102,7 +100,7 @@ public record SubscriptionRequestReceivedIntegrationEvent(
     [Required] string FirstName, 
     [Required] string LastName,
     [Required] string Email,
-    [Required] int Age,
+    [Required] DateOnly BirthDate,
     [Required] decimal LoanAmount, 
     [Required] decimal InsuredAmount) : IntegrationEvent;
 

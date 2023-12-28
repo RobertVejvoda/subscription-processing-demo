@@ -1,5 +1,3 @@
-using Core.Types;
-
 namespace SubscriptionService.Model;
 
 public class SubscriptionState : Enumeration
@@ -7,6 +5,7 @@ public class SubscriptionState : Enumeration
     public static SubscriptionState Created = new SubscriptionState(10, nameof(Created));
     public static SubscriptionState Registered = new SubscriptionState(20, nameof(Registered));
     public static SubscriptionState Normalized = new SubscriptionState(30, nameof(Normalized));
+    public static SubscriptionState Validated = new SubscriptionState(35, nameof(Validated));
     public static SubscriptionState InAnalysis = new SubscriptionState(40, "In analysis");
     public static SubscriptionState Pending = new SubscriptionState(50, nameof(Pending));
     public static SubscriptionState Suspended = new SubscriptionState(60, nameof(Suspended));

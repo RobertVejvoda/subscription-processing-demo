@@ -9,14 +9,12 @@ services:
       context: .
       dockerfile: ./services/SubscriptionService/Dockerfile
     environment:
-      - NAMESPACE=onecop
+      - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "5001:8080"       # app
       - "3601:3500"
       - "60001:50001"
       - "9091:9090"
-    networks:
-      - onecop
 
   subscription-service-dapr:
     container_name: subscription-service-dapr
@@ -28,7 +26,6 @@ services:
                "-dapr-grpc-port", "50001",
                "-metrics-port", "9090",
                "-app-port", "8080",   # app
-               "-placement-host-address", "dapr-placement:50007",
                "-components-path", "/components",
                "-config", "/configuration/dapr-config.yaml"
     ]
@@ -45,14 +42,12 @@ services:
       context: .
       dockerfile: ./services/CustomerService/Dockerfile
     environment:
-      - NAMESPACE=onecop
+      - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "5002:8080"       # app
       - "3602:3500"
       - "60002:50001"
       - "9092:9090"
-    networks:
-      - onecop
 
   customer-service-dapr:
     container_name: customer-service-dapr
@@ -64,7 +59,6 @@ services:
                "-dapr-grpc-port", "50001",
                "-metrics-port", "9090",
                "-app-port", "8080",   # app
-               "-placement-host-address", "dapr-placement:50007",
                "-components-path", "/components",
                "-config", "/configuration/dapr-config.yaml"
     ]
@@ -74,21 +68,12 @@ services:
     depends_on:
       - customer-service
 
-  dapr-placement:
-    container_name: dapr-placement
-    image: daprio/dapr:1.12.0
-    command: [ "./placement", "-port", "50007", "-log-level", "error" ]
-    ports:
-      - "50007:50007"
-        
   zipkin:
     container_name: zipkin
     image: openzipkin/zipkin
     restart: unless-stopped
     ports:
       - "9412:9411"
-    networks:
-      - onecop
   
   rabbitmq:
     container_name: rabbitmq
@@ -99,8 +84,39 @@ services:
       - "15672:15672"
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq"
-    networks:
-      - onecop
+
+  ods-service:
+    container_name: ods-service
+    image: ods-service:${TAG:-latest}
+    build:
+      context: .
+      dockerfile: ./services/ODSService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5010:8080"       # app
+      - "3610:3500"
+      - "60010:50001"
+      - "9100:9090"
+
+  ods-service-dapr:
+    container_name: ods-service-dapr
+    image: daprio/daprd:1.12.0
+    network_mode: "service:ods-service"
+    command: [ "./daprd",
+               "-app-id", "ods-service",
+               "-dapr-http-port", "3500",
+               "-dapr-grpc-port", "50001",
+               "-metrics-port", "9090",
+               "-app-port", "8080",   # app
+               "-components-path", "/components",
+               "-config", "/configuration/dapr-config.yaml"
+    ]
+    volumes:
+      - "./dapr/components/:/components"
+      - "./dapr/configuration/:/configuration"
+    depends_on:
+      - ods-service
 
   mongo:
     container_name: mongo
@@ -110,18 +126,25 @@ services:
       - "27017:27017"
     volumes:
       - mongo-data:/var/lib/mongo"
-    networks:
-      - onecop
+
+  mssql:
+    container_name: mssql
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=b75d6st2e83qtjx9Sa98
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    
 
 volumes:
   mongo-data:
   rabbitmq-data:
+  mssql-data:
 
-  
-networks:
-  onecop:
-    name: onecop
-    driver: bridge
      
     
     

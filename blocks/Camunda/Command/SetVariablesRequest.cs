@@ -6,4 +6,6 @@ namespace Camunda.Command
         [Required] long? ElementInstanceKey,
         [Required] object Variables,
         bool? Local);
+    
+    public record SetVariablesResponse(long Key);
 }

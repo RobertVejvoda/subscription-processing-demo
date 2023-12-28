@@ -4,4 +4,4 @@ public record RegisterCustomerCommand(
     [Required] string FirstName,
     [Required] string LastName,
     [Required] string Email,
-    [Required] int Age);
+    [Required] DateOnly BirthDate);

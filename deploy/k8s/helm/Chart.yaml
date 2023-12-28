@@ -1,5 +1,0 @@
-apiVersion: v2
-name: OneCop 2.0
-description: OneCop Helm chart for k8s
-type: application
-version: 1.0.0

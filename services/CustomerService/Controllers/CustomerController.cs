@@ -4,15 +4,8 @@ namespace CustomerService.Controllers;
 
 [ApiController]
 [Route("/api/customers")]
-public class CustomerController : ControllerBase
+public class CustomerController(ILogger<CustomerController> logger) : ControllerBase
 {
-    private readonly ILogger<CustomerController> logger;
-
-    public CustomerController(ILogger<CustomerController> logger)
-    {
-        this.logger = logger;
-    }
-
     [HttpGet("{customerId}")]
     public async Task<ActionResult<string>> GetCustomer(
         [Required, FromRoute] string customerId, 
@@ -27,31 +20,83 @@ public class CustomerController : ControllerBase
         return Ok(customer);
     }
 
-    [HttpPost]
-    public async Task<ActionResult<string>> RegisterCustomer(
-        [Required] RegisterCustomerCommand command, 
-        [FromServices] CustomerRepository repository)
+    [HttpPost("/register-customer")]
+    public async Task<ActionResult<CustomerModel>> RegisterCustomer(
+        [Required] RegisterCustomerCommand command,
+        [FromServices] CustomerRepository repository,
+        [FromServices] IEventBus eventBus)
     {
-        var key = Customer.Key(command.Email);
-        var customer = await repository.GetAsync(key);
-        if (customer == null)
-        {
-            customer = new Customer(key, command.FirstName, command.LastName, command.Email, command.Age, "valid");
-            await repository.AddAsync(customer);
 
-            logger.LogInformation("New customer: {FirstName} {LastName} {Email}", customer.FirstName, customer.LastName, customer.Email);
+        var customer = new Customer(command.FirstName, command.LastName, command.Email, command.BirthDate, "valid");
+        await repository.AddAsync(customer);
 
-            var url = UrlEncoder.Default.Encode(key);
-            return Created(url, customer);
-        }
+        logger.LogInformation("New customer: {FirstName} {LastName} {Email}", customer.FirstName, customer.LastName,
+            customer.Email);
 
-        return Ok(customer);
+        await eventBus.PublishAsync("customer-registered",
+            new CustomerRegisteredIntegrationEvent(
+                customer.Id,
+                customer.FirstName,
+                customer.LastName,
+                customer.Email,
+                customer.State.Name,
+                customer.BirthDate));
+        
+        return Ok(customer.ToModel());
     }
 
-    [HttpPost("/subscription-received")]
-    // [Topic(Resources.Bindings.PubSub, "subscription-received")]
-    // defined in configuration
-    public Task HandleAsync([Required] SubscriptionRequestReceivedIntegrationEvent @event,
-        [FromServices] SubscriptionIntegrationEventHandler handler)
-        => handler.Handle(@event);
+    [HttpPost("/determine-existing-customer")]
+    public async Task<ActionResult<string>> DetermineExistingCustomer(DetermineExistingCustomerCommand command)
+    {
+        var customerId = await Queries.CustomerQueries.IdentifyCustomer(command.Email, command.BirthDate);
+        if (string.IsNullOrWhiteSpace(customerId))
+        {
+            return NotFound();
+        }
+
+        return Ok(customerId);
+    }
+
+    [HttpPost("/know-your-customer")]
+    public async Task<ActionResult> KnowYourCustomer(
+        [Required] KnowYourCustomerCommand command,
+        [FromServices] CustomerRepository customerRepository)
+    {
+        // fake
+        var customer = await customerRepository.GetAsync(command.CustomerId);
+        
+        // it's not a valid state, customer should have already been registered
+        if (customer == null)
+            return BadRequest();
+
+        customer.Activate();
+
+        await customerRepository.AddAsync(customer);
+
+        return Ok();
+    }
+
+    [HttpPost("/notify-customer")]
+    public async Task<ActionResult> NotifyCustomer(
+        [Required] NotifyCustomerCommand command,
+        [FromServices] CustomerRepository customerRepository,
+        [FromServices] DaprClient daprClient)
+    {
+        var customer = await customerRepository.GetAsync(command.CustomerId);
+        if (customer == null)
+            return NotFound();
+        
+        // send email
+        var body = $"Dear {customer.FirstName}\r\n\r\n, {command.Message}.";
+        var metadata = new Dictionary<string, string>
+        {
+            ["emailFrom"] = "noreply@incredible.inc",
+            ["emailTo"] = customer.Email,
+            ["subject"] = "Message from your insurance company"
+        };
+
+        await daprClient.InvokeBindingAsync("send-email", "create", body, metadata);
+
+        return Ok();
+    }
 }
