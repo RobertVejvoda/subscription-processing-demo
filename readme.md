@@ -5,7 +5,7 @@ There are possibly many ways how to achieve the goal. A typical approach is use 
 and exchange messages. While this is perfectly acceptable the other approach is to use some workflow orchestrator, in our case Camunda Platform 8.
 The BPMN below describes the flow.
 
-![image](assets/subscription-workflow.png)
+![image](/Users/robert/source/repos/cardif/subscription-processing-demo/assets/subscription-processing.png)
 
 The first task is to register a customer in CRM system or - in our case - Customer Service.
 Then Subscription Service is responsible for registering and validating the request.
@@ -34,6 +34,8 @@ Subscription model is implemented using domain driven design.
 ## Subscription validation - underwriting process
 
 Given the age and insured amount decide risk and make a final decision whether to accept subscription request.
+
+![image](assets/register-customer.png)
 
 ![image](assets/underwriting.png)
 
@@ -79,7 +81,7 @@ content-type: application/json
   "firstName": "Homer",
   "lastName": "Simpson",
   "email": "homer.simpson@thesimpsons.movie",
-  "age": 30,
+  "birthDate": "01-01-2000",
   "productId": "1",
   "loanAmount": 200000,
   "insuredAmount": 100000
