@@ -1,14 +1,9 @@
 namespace ODSService;
 
-public class ODSDataContext : DbContext
+public class OdsDataContext(DbContextOptions<OdsDataContext> options, ILoggerFactory loggerFactory)
+    : DbContext(options)
 {
     private const string DEFAULT_SCHEMA = "dbo";
-    private readonly ILoggerFactory loggerFactory;
-    
-    public ODSDataContext(DbContextOptions<ODSDataContext> options, ILoggerFactory loggerFactory) : base(options)
-    {
-        this.loggerFactory = loggerFactory;
-    }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -31,6 +26,6 @@ public class ODSDataContext : DbContext
         modelBuilder.HasDefaultSchema(DEFAULT_SCHEMA);
         modelBuilder.HasSequence<int>("CustomerNumbers").StartsAt(100).IncrementsBy(1);
         modelBuilder.HasSequence<int>("SubscriptionNumbers").StartsAt(100).IncrementsBy(1);
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ODSDataContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(OdsDataContext).Assembly);
     }
 }

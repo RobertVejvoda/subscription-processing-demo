@@ -6,8 +6,6 @@ global using Core.Helpers;
 global using Core.Providers;
 global using Core.Types;
 global using Dapr.Client;
-global using EventBus;
-global using EventBus.Abstractions;
 global using HealthChecks;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.Extensions.Diagnostics.HealthChecks;

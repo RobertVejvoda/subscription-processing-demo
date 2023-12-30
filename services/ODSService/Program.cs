@@ -5,13 +5,13 @@ builder.Services.AddControllers()
     .AddDapr(client => client.UseJsonSerializationOptions(new JsonSerializerOptions(JsonSerializerDefaults.Web)));
 
 builder.Services.AddHealthChecks()
-    .AddDbContextCheck<ODSDataContext>()
+    .AddDbContextCheck<OdsDataContext>()
     .AddCheck("self", () => HealthCheckResult.Healthy())
     .AddDapr();
 
 builder.Services.AddSingleton<IDateTimeProvider, UtcDateTimeProvider>();
 builder.Services.AddScoped<CustomerQuery>();
-builder.Services.AddDbContext<ODSDataContext>(
+builder.Services.AddDbContext<OdsDataContext>(
     options => options
         .UseSqlServer(builder.Configuration.GetConnectionString("ODSDataMartConnectionString"))
         .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));

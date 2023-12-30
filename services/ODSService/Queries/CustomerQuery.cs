@@ -1,6 +1,6 @@
 namespace ODSService.Queries;
 
-public class CustomerQuery(ODSDataContext context)
+public class CustomerQuery(OdsDataContext context)
 {
     public async Task<CustomerModel?> FindCustomerById(string customerId)
     {
@@ -40,7 +40,7 @@ public class CustomerQuery(ODSDataContext context)
         return result;
     }
 
-    public async Task<List<CustomerModel>> GetCustomersAsync(int limit)
+    public async Task<List<CustomerModel>> FindCustomersAsync(int limit)
     {
         var results = 
             await context.Set<Customer>()
@@ -61,7 +61,7 @@ public class CustomerQuery(ODSDataContext context)
         return results;
     }
 
-    public async Task<List<SubscriptionModel>> GetSubscriptionsForCustomer(string customerId)
+    public async Task<List<SubscriptionModel>> FindSubscriptionsForCustomer(string customerId)
     {
         var results =
             await context.Set<Subscription>()

@@ -5,16 +5,16 @@ using ODSService.Commands;
 namespace ODSService.Controllers;
 
 [ApiController]
-[Route("api/subscriptions")]
-public class SubscriptionController : ControllerBase
+[Route("api/customers")]
+public class CustomerController : ControllerBase
 {
-    private readonly ILogger<SubscriptionController> logger;
-    private readonly ODSDataContext dataContext;
+    private readonly ILogger<CustomerController> logger;
+    private readonly OdsDataContext dataContext;
     private readonly CustomerQuery customerQuery;
 
-    public SubscriptionController(
-        ILogger<SubscriptionController> logger, 
-        ODSDataContext dataContext,
+    public CustomerController(
+        ILogger<CustomerController> logger, 
+        OdsDataContext dataContext,
         CustomerQuery customerQuery)
     {
         this.logger = logger;
@@ -25,13 +25,13 @@ public class SubscriptionController : ControllerBase
     [HttpGet]
     public async Task<ICollection<CustomerModel>> GetCustomers(int limit = 5)
     {
-        return await customerQuery.GetCustomersAsync(limit);
+        return await customerQuery.FindCustomersAsync(limit);
     }
 
     [HttpGet("{customerId}/subscriptions")]
     public async Task<ICollection<SubscriptionModel>> GetSubscriptions(string customerId)
     {
-        return await customerQuery.GetSubscriptionsForCustomer(customerId);
+        return await customerQuery.FindSubscriptionsForCustomer(customerId);
     }
 
     [HttpPost("/register-subscription-request")]

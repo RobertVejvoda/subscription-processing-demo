@@ -15,20 +15,19 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\..\blocks\Camunda\Camunda.csproj" />
       <ProjectReference Include="..\..\blocks\Core\Core.csproj" />
-      <ProjectReference Include="..\..\blocks\EventBus\EventBus.csproj" />
       <ProjectReference Include="..\..\blocks\HealthChecks\HealthChecks.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <Compile Remove="Events\SubscriptionIntegrationEvents.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
     </ItemGroup>
 
 </Project>
