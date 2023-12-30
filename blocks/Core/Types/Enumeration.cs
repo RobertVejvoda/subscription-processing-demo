@@ -1,24 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace Core.Types
 {
-    public abstract class Enumeration : IComparable
+    public abstract class Enumeration(int id, string name) : IComparable
     {
-        public string Name { get; private set; }
+        public string Name { get; private set; } = name;
 
-        public int Id { get; private set; }
-
-        protected Enumeration(int id, string name)
-        {
-            Id = id;
-            Name = name;
-        }
+        public int Id { get; } = id;
 
         public override string ToString() => Name;
 
+        // ReSharper disable once MemberCanBePrivate.Global
         public static IEnumerable<T> GetAll<T>() where T : Enumeration
         {
             var fields = typeof(T).GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly);
@@ -56,7 +48,7 @@ namespace Core.Types
             return matchingItem;
         }
 
-        private static T Parse<T, K>(K value, string description, Func<T, bool> predicate) where T : Enumeration
+        private static T Parse<T, TK>(TK value, string description, Func<T, bool> predicate) where T : Enumeration
         {
             var matchingItem = GetAll<T>().FirstOrDefault(predicate);
 
@@ -77,12 +69,12 @@ namespace Core.Types
             throw new ArgumentException("Object is not Enumeration");
         }
 
-        public static bool operator ==(Enumeration x, Enumeration y)
+        public static bool operator ==(Enumeration? x, Enumeration? y)
         {
-            return x.Equals(y);
+            return x != null && x.Equals(y);
         }
 
-        public static bool operator !=(Enumeration x, Enumeration y)
+        public static bool operator !=(Enumeration? x, Enumeration? y)
         {
             return !(x == y);
         }

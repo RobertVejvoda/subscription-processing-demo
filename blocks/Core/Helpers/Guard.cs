@@ -1,7 +1,4 @@
-﻿using Core.Types;
-using System;
-
-namespace Core.Helpers
+﻿namespace Core.Helpers
 {
     public static class Guard
     {

@@ -2,13 +2,13 @@ namespace ODSService.Model;
 
 public class CustomerModel
 {
-    public string CustomerId { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string Email { get; set; }
-    public string CustomerState { get; set; }
-    public DateOnly BirthDate { get; set; }
+    public required string CustomerId { get; init; }
+    public required string FirstName { get; init; }
+    public required string LastName { get; init; }
+    public required string Email { get; init; }
+    public required string CustomerState { get; init; }
+    public DateOnly BirthDate { get; init; }
     public int Age => DateTime.Now.Year - BirthDate.Year;
-    public decimal TotalLoanAmount { get; set; }
-    public decimal TotalInsuredAmount { get; set; }
+    public decimal TotalLoanAmount { get; init; }
+    public decimal TotalInsuredAmount { get; init; }
 }

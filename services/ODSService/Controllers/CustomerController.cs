@@ -48,7 +48,8 @@ public class CustomerController : ControllerBase
                 LastName = command.LastName,
                 Email = command.Email,
                 State = command.CustomerState,
-                BirthDate = command.BirthDate
+                BirthDate = command.BirthDate,
+                Subscriptions = new List<Subscription>()
             };
         }
 
@@ -61,7 +62,7 @@ public class CustomerController : ControllerBase
             ReceivedOn = command.RegisteredOn,
             State = command.CustomerState,
             ProductId = command.ProductId,
-            ProcessInstanceKey = command.ProcessInstanceKey
+            ProcessInstanceKey = command.ProcessInstanceKey,
         });
 
         customer.TotalLoanAmount += command.LoanAmount;

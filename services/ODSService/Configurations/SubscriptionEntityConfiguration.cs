@@ -16,6 +16,6 @@ public class SubscriptionEntityConfiguration : IEntityTypeConfiguration<Subscrip
         builder.Property(p => p.ReceivedOn).IsRequired();
         builder.Property(p => p.LastUpdatedOn).HasPrecision(3).HasDefaultValueSql("CURRENT_TIMESTAMP").IsRequired();
         
-        builder.HasOne(s => s.Customer).WithMany(c => c.Subscriptions).HasForeignKey(s => s.CustomerId);
+        builder.HasOne(s => s.Customer).WithMany(c => c.Subscriptions).HasForeignKey("CustomerId");
     }
 }

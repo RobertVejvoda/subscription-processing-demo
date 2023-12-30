@@ -1,5 +1,3 @@
-using System;
-
 namespace Core.Providers
 {
     public class UtcDateTimeProvider : IDateTimeProvider

@@ -1,3 +1,4 @@
+# nonk8s
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
@@ -7,9 +8,9 @@ spec:
   version: v1
   metadata:
     - name: host
-      value: host.docker.internal
+      value: "host.docker.internal"
     - name: port
-      value: 4025
+      value: "4025"
     - name: user
       secretKeyRef:
         name: smtp.user
@@ -19,7 +20,7 @@ spec:
         name: smtp.password
         key: smtp.password
     - name: skipTLSVerify
-      value: true
+      value: "true"
 auth:
   secretStore: secrets
 

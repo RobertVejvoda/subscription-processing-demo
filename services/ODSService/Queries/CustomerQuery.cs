@@ -28,7 +28,7 @@ public class CustomerQuery(OdsDataContext context)
             .Select(x => new SubscriptionModel
             {
                 SubscriptionId = x.Id,
-                subscriptionState = x.State,
+                SubscriptionState = x.State,
                 LoanAmount = x.LoanAmount,
                 InsuredAmount = x.InsuredAmount,
                 ReceivedOn = x.ReceivedOn,
@@ -46,7 +46,7 @@ public class CustomerQuery(OdsDataContext context)
             await context.Set<Customer>()
                 .OrderByDescending(x => x.LastUpdatedOn)
                 .Take(limit)
-                .Select(x => new Model.CustomerModel
+                .Select(x => new CustomerModel
                 {
                     CustomerId = x.Id,
                     FirstName = x.FirstName,
@@ -65,11 +65,11 @@ public class CustomerQuery(OdsDataContext context)
     {
         var results =
             await context.Set<Subscription>()
-                .Where(x => x.CustomerId.Equals(customerId))
+                .Where(x => x.Customer.Id.Equals(customerId))
                 .Select(x => new SubscriptionModel
                 {
                     SubscriptionId = x.Id,
-                    subscriptionState = x.State,
+                    SubscriptionState = x.State,
                     LoanAmount = x.LoanAmount,
                     InsuredAmount = x.InsuredAmount,
                     ReceivedOn = x.ReceivedOn,

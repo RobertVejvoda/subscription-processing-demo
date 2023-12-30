@@ -1,3 +1,4 @@
+# nonk8s
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
@@ -7,7 +8,7 @@ spec:
   version: v1
   metadata:
     - name: host
-      value: host.docker.internal:27017 # Required unless "server" field is set . Example: "mongo-mongodb.default.svc.cluster.local:27017"
+      value: "host.docker.internal:27017" # Required unless "server" field is set . Example: "mongo-mongodb.default.svc.cluster.local:27017"
     - name: operationTimeout
       value: "5s" # Optional. default: "5s"
     - name: actorStateStore
