@@ -28,10 +28,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Events\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Compile Remove="Events\SubscriptionIntegrationEvents.cs" />
     </ItemGroup>
 

@@ -11,7 +11,7 @@
         </inputExpression>
       </input>
       <output id="Output_1" label="Underwriting Result" name="underwritingResult" typeRef="string" />
-      <output id="OutputClause_164s3cx" label="Message to client" name="messageToClient" typeRef="string" />
+      <output id="OutputClause_164s3cx" label="Message to customer" name="message" typeRef="string" />
       <rule id="DecisionRule_10tv9n5">
         <inputEntry id="UnaryTests_0sif67n">
           <text>&lt; 0.5</text>

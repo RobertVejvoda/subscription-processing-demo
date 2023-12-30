@@ -7,11 +7,23 @@ spec:
   version: v1
   metadata:
     - name: host
-      value: localhost:27017 # Required unless "server" field is set . Example: "mongo-mongodb.default.svc.cluster.local:27017"
+      value: host.docker.internal:27017 # Required unless "server" field is set . Example: "mongo-mongodb.default.svc.cluster.local:27017"
     - name: operationTimeout
       value: "5s" # Optional. default: "5s"
     - name: actorStateStore
       value: "false"
+    - name: username
+      secretKeyRef:
+        name: mongo.username
+        key: mongo.username
+    - name: password
+      secretKeyRef:
+        name: mongo.password
+        key: mongo.password
+    - name: databaseName
+      value: "daprStore" # Optional. default: "daprStore"
+    - name: collectionName
+      value: "daprCollection" # Optional. default: "daprCollection"
     - name: params
       value: "?authSource=admin"
 

@@ -57,14 +57,13 @@ public class SubscriptionController : ControllerBase
 
     [HttpPost("/normalize")]
     public async Task<ActionResult<SubscriptionModel>> Normalize(
-        [Required] NormalizeSubscriptionCommand command,
-        [FromServices] ProductProxyService productService)
+        [Required] NormalizeSubscriptionCommand command)
     {
         var subscription = await repository.GetAsync(command.SubscriptionId);
         if (subscription == null)
             return NotFound();
         
-        subscription.Normalize(productService);
+        subscription.Normalize();
         await repository.AddAsync(subscription, command.ProcessInstanceKey);
 
         return Ok(subscription.ToModel());
@@ -74,6 +73,7 @@ public class SubscriptionController : ControllerBase
     public async Task<ActionResult<SubscriptionModel>> Validate(
         [Required] ValidateSubscriptionCommand command,
         [FromServices] IZeebeClient zeebeClient,
+        [FromServices] ProductProxyService productProxyService,
         [FromServices] IHttpContextAccessor httpContextAccessor)
     {
         var subscription = await repository.GetAsync(command.SubscriptionId);
@@ -81,7 +81,7 @@ public class SubscriptionController : ControllerBase
             return BadRequest();
 
         subscription.CustomerId = command.CustomerId;
-        var validationResult = subscription.Validate();
+        var validationResult = subscription.Validate(productProxyService);
         await repository.AddAsync(subscription, command.ProcessInstanceKey);
 
         if (validationResult.IsValid) 
@@ -108,7 +108,7 @@ public class SubscriptionController : ControllerBase
         if (subscription == null)
             return NotFound();
         
-        subscription.Accept("well, accepted!");
+        subscription.Accept(command.Message);
         await repository.AddAsync(subscription, command.ProcessInstanceKey);
 
         return Ok(subscription.ToModel());
@@ -122,7 +122,7 @@ public class SubscriptionController : ControllerBase
         if (subscription == null)
             return NotFound();
         
-        subscription.Reject(command.Reason);
+        subscription.Reject(command.Message);
         await repository.AddAsync(subscription, command.ProcessInstanceKey);
 
         return Ok(subscription.ToModel());
@@ -136,7 +136,7 @@ public class SubscriptionController : ControllerBase
         if (subscription == null)
             return NotFound();
         
-        subscription.Suspend(command.Reason);
+        subscription.Suspend(command.Message);
         await repository.AddAsync(subscription, command.ProcessInstanceKey);
 
         return Ok(subscription.ToModel());

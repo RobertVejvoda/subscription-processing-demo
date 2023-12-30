@@ -8,7 +8,6 @@ builder.Services.AddControllers()
 builder.Services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<SubscriptionRepository>();
 builder.Services.AddScoped<ProductProxyService>();
-builder.Services.AddScoped<IEventBus, DaprEventBus>();
 
 builder.Services
     .AddHealthChecks()

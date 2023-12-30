@@ -1,11 +1,16 @@
+using Core.Exceptions;
+
 namespace SubscriptionService.Proxy;
 
 public class ProductProxyService(IDateTimeProvider dateTimeProvider)
 {
-    public Product GetProduct(string productId)
+    public void EnsureActiveProduct(string productId)
     {
         // fake impl.
-        return new Product(productId, "Demo product",
+        var product = new Product(productId, "Demo product",
             new DateRange(dateTimeProvider.Now().AddDays(-7), dateTimeProvider.Now().AddDays(7)), "Active");
+
+        if (!product.IsActiveOn(dateTimeProvider.Now()))
+            throw new DomainException("Product is not active.", productId);
     }
 }

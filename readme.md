@@ -5,7 +5,7 @@ There are possibly many ways how to achieve the goal. A typical approach is use 
 and exchange messages. While this is perfectly acceptable the other approach is to use some workflow orchestrator, in our case Camunda Platform 8.
 The BPMN below describes the flow.
 
-![image](/Users/robert/source/repos/cardif/subscription-processing-demo/assets/subscription-processing.png)
+![image](assets/subscription-processing.png)
 
 The first task is to register a customer in CRM system or - in our case - Customer Service.
 Then Subscription Service is responsible for registering and validating the request.
@@ -35,11 +35,26 @@ Subscription model is implemented using domain driven design.
 
 Given the age and insured amount decide risk and make a final decision whether to accept subscription request.
 
-![image](assets/register-customer.png)
+### Register Customer
 
-![image](assets/underwriting.png)
+![register customer](assets/register-customer.png)
 
-![image](assets/underwriting_risk.jpg)
+### Analyze Subscription
+
+![subscription analysis](assets/subscription-analysis.png)
+
+
+### Evaluate risks and make decision
+
+The following diagram consists of 2 decisions and shows how to chain multiple steps into a final one. 
+
+![underwriting](assets/underwriting.png)
+
+First, decide risk according to customer age and insured amount results to 0-1.
+
+![underwriting risk](assets/underwriting_risk.jpg)
+
+Second, make a final decision according to the risk evaluated.
 
 ---
 

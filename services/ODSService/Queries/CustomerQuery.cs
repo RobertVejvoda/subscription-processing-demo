@@ -1,53 +1,81 @@
-using ODSService.Model;
-
 namespace ODSService.Queries;
 
-public class CustomerQuery
+public class CustomerQuery(ODSDataContext context)
 {
-    private readonly ODSDataContext context;
-
-    public CustomerQuery(ODSDataContext context)
+    public async Task<CustomerModel?> FindCustomerById(string customerId)
     {
-        this.context = context;
+        var result = await context.Set<Customer>()
+            .Where(x => x.Id.Equals(customerId))
+            .Select(x => new CustomerModel
+            {
+                CustomerId = x.Id,
+                FirstName = x.FirstName,
+                LastName = x.LastName,
+                Email = x.Email,
+                CustomerState = x.State,
+                BirthDate = x.BirthDate,
+                TotalLoanAmount = x.TotalLoanAmount,
+                TotalInsuredAmount = x.TotalInsuredAmount
+            }).SingleOrDefaultAsync();
+
+        return result;
     }
 
-    public async Task<List<Model.Customer>> GetCustomersAsync(int limit)
+    public async Task<SubscriptionModel?> FindSubscriptionById(string subscriptionId)
     {
-        var now = DateTime.Now;
-        
+        var result = await context.Set<Subscription>()
+            .Where(x => x.Id.Equals(subscriptionId))
+            .Select(x => new SubscriptionModel
+            {
+                SubscriptionId = x.Id,
+                subscriptionState = x.State,
+                LoanAmount = x.LoanAmount,
+                InsuredAmount = x.InsuredAmount,
+                ReceivedOn = x.ReceivedOn,
+                LastUpdatedOn = x.LastUpdatedOn,
+                UnderwritingResult = x.UnderwritingResult,
+                Message = x.Message
+            }).SingleOrDefaultAsync();
+
+        return result;
+    }
+
+    public async Task<List<CustomerModel>> GetCustomersAsync(int limit)
+    {
         var results = 
-            await context.Customers
+            await context.Set<Customer>()
                 .OrderByDescending(x => x.LastUpdatedOn)
                 .Take(limit)
-                .Select(x => new Model.Customer
+                .Select(x => new Model.CustomerModel
                 {
-                    Id = x.Id,
+                    CustomerId = x.Id,
                     FirstName = x.FirstName,
                     LastName = x.LastName,
                     Email = x.Email,
-                    Status = x.Status,
+                    CustomerState = x.State,
                     BirthDate = x.BirthDate,
-                    TotalLoanAmount = x.Subscriptions.Select(y => y.LoanAmount).DefaultIfEmpty().Sum(),
-                    TotalInsuredAmount = x.Subscriptions.Select(y => y.InsuredAmount).DefaultIfEmpty().Sum()
+                    TotalLoanAmount = x.TotalLoanAmount,
+                    TotalInsuredAmount = x.TotalInsuredAmount
                 }).ToListAsync();
 
         return results;
     }
 
-    public async Task<List<Subscription>> GetSubscriptionsForCustomer(string customerId)
+    public async Task<List<SubscriptionModel>> GetSubscriptionsForCustomer(string customerId)
     {
         var results =
-            await context.Subscriptions
-                .Where(x => x.Customer.Id.Equals(customerId))
-                .Select(x => new Subscription
+            await context.Set<Subscription>()
+                .Where(x => x.CustomerId.Equals(customerId))
+                .Select(x => new SubscriptionModel
                 {
-                    Id = x.Id,
-                    State = x.Status,
+                    SubscriptionId = x.Id,
+                    subscriptionState = x.State,
                     LoanAmount = x.LoanAmount,
                     InsuredAmount = x.InsuredAmount,
                     ReceivedOn = x.ReceivedOn,
                     LastUpdatedOn = x.LastUpdatedOn,
-                    UnderwritingResult = x.UnderwritingResult
+                    UnderwritingResult = x.UnderwritingResult,
+                    Message = x.Message
                 })
                 .OrderBy(x => x.ReceivedOn)
                 .ToListAsync();

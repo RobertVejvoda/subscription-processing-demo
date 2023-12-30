@@ -1,12 +1,15 @@
 // Global using directives
 
 global using System.ComponentModel.DataAnnotations;
+global using System.Text;
 global using System.Text.Encodings.Web;
 global using System.Text.Json;
 global using System.Text.Json.Serialization;
+global using Core.Domain;
 global using CustomerService.Events;
 global using CustomerService.Repository;
 global using Core.Providers;
+global using Core.Types;
 global using CustomerService;
 global using CustomerService.Commands;
 global using CustomerService.Model;

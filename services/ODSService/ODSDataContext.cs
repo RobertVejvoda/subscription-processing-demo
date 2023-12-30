@@ -1,15 +1,9 @@
-using ODSService.Entity;
-
 namespace ODSService;
 
 public class ODSDataContext : DbContext
 {
     private const string DEFAULT_SCHEMA = "dbo";
     private readonly ILoggerFactory loggerFactory;
-    
-    public DbSet<Customer> Customers { get; set; }
-    public DbSet<Subscription> Subscriptions { get; set; }
-
     
     public ODSDataContext(DbContextOptions<ODSDataContext> options, ILoggerFactory loggerFactory) : base(options)
     {

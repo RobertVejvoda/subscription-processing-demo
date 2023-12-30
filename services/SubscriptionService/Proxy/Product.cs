@@ -1,4 +1,4 @@
-namespace SubscriptionService.Model;
+namespace SubscriptionService.Proxy;
 
 public record Product(
     [Required] string Id,
@@ -8,3 +8,5 @@ public record Product(
 {
     public bool IsActiveOn(DateTime date) => ValidityPeriod.IsInRange(date);
 }
+
+    

@@ -8,9 +8,8 @@
       <bpmn:extensionElements>
         <zeebe:calledDecision decisionId="underwritingDecision" resultVariable="underwritingDecision" />
         <zeebe:ioMapping>
-          <zeebe:output source="=&#34;In analysis&#34;" target="state" />
           <zeebe:output source="=underwritingDecision.underwritingResult" target="underwritingResult" />
-          <zeebe:output source="=underwritingDecision.messageToClient" target="messageToClient" />
+          <zeebe:output source="=underwritingDecision.message" target="message" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1u4oobr</bpmn:incoming>

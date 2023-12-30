@@ -1,56 +1,119 @@
-using Dapr;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
-using ODSService.Events;
-using ODSService.Model;
+using ODSService.Commands;
 
 namespace ODSService.Controllers;
 
 [ApiController]
-[Route("api/customers")]
-public class CustomerController : ControllerBase
+[Route("api/subscriptions")]
+public class SubscriptionController : ControllerBase
 {
-    private readonly ILogger<CustomerController> logger;
-    private readonly CustomerRepository customerRepository;
+    private readonly ILogger<SubscriptionController> logger;
+    private readonly ODSDataContext dataContext;
     private readonly CustomerQuery customerQuery;
 
-    public CustomerController(ILogger<CustomerController> logger, CustomerRepository customerRepository, CustomerQuery customerQuery)
+    public SubscriptionController(
+        ILogger<SubscriptionController> logger, 
+        ODSDataContext dataContext,
+        CustomerQuery customerQuery)
     {
         this.logger = logger;
-        this.customerRepository = customerRepository;
+        this.dataContext = dataContext;
         this.customerQuery = customerQuery;
     }
 
     [HttpGet]
-    public async Task<ICollection<Model.Customer>> Get(int limit = 5)
+    public async Task<ICollection<CustomerModel>> GetCustomers(int limit = 5)
     {
         return await customerQuery.GetCustomersAsync(limit);
     }
 
     [HttpGet("{customerId}/subscriptions")]
-    public async Task<ICollection<Subscription>> GetSubscriptions(string customerId)
+    public async Task<ICollection<SubscriptionModel>> GetSubscriptions(string customerId)
     {
         return await customerQuery.GetSubscriptionsForCustomer(customerId);
     }
 
-    [HttpPost("/customer-registered")]
-    public async Task OnCustomerRegistered(CustomerRegisteredIntegrationEvent @event, [FromServices] CustomerRepository repository)
+    [HttpPost("/register-subscription-request")]
+    public async Task<ActionResult> RegisterSubscriptionRequest(
+        [Required] RegisterSubscriptionRequestCommand command)
     {
-        var customer = await repository.GetById(@event.CustomerId);
-        if (customer != null)
+        var customer = await dataContext.FindAsync<Customer>(command.CustomerId);
+        if (customer == null)
         {
-            logger.LogInformation("Customer {CustomerId} is already registered.", @event.CustomerId);
-            return;
+            customer = new Customer
+            {
+                Id = command.CustomerId,
+                FirstName = command.FirstName,
+                LastName = command.LastName,
+                Email = command.Email,
+                State = command.CustomerState,
+                BirthDate = command.BirthDate
+            };
         }
 
-        await repository.Add(new Customer
-            {
-                Id = @event.CustomerId,
-                FirstName = @event.FirstName,
-                LastName = @event.LastName,
-                Email = @event.Email,
-                Status = @event.Status,
-                BirthDate = @event.BirthDate,
-                LastUpdatedOn = default
-            });
+        customer.Subscriptions.Add(new Subscription
+        {
+            Id = command.SubscriptionId,
+            InsuredAmount = command.InsuredAmount,
+            LoanAmount = command.LoanAmount,
+            LastUpdatedOn = command.RegisteredOn,
+            ReceivedOn = command.RegisteredOn,
+            State = command.CustomerState,
+            ProductId = command.ProductId,
+            ProcessInstanceKey = command.ProcessInstanceKey
+        });
+
+        customer.TotalLoanAmount += command.LoanAmount;
+        customer.TotalInsuredAmount += command.InsuredAmount;
+
+        await dataContext.AddAsync(customer);
+
+        return Ok();
     }
-}
+
+    public async Task<ActionResult> SubscriptionAccepted(SubscriptionAcceptedCommand command)
+    {
+        var subscription = await dataContext.FindAsync<Subscription>(command.SubscriptionId);
+        if (subscription == null)
+            return NotFound();
+
+        subscription.UnderwritingResult = command.UnderwritingResult;
+        subscription.Message = command.Message;
+        subscription.LastUpdatedOn = command.AcceptedOn;
+
+        await dataContext.SaveChangesAsync();
+        
+        return Ok();
+    }
+
+    public async Task<ActionResult> SubscriptionRejected(SubscriptionRejectedCommand command)
+    {
+        var subscription = await dataContext.FindAsync<Subscription>(command.SubscriptionId);
+        if (subscription == null)
+            return NotFound();
+
+        subscription.UnderwritingResult = command.UnderwritingResult;
+        subscription.Message = command.Message;
+        subscription.LastUpdatedOn = command.RejectedOn;
+
+        await dataContext.SaveChangesAsync();
+        
+        return Ok();
+    }
+    
+    public async Task<ActionResult> SubscriptionSuspended(SubscriptionSuspendedCommand command)
+    {
+        var subscription = await dataContext.FindAsync<Subscription>(command.SubscriptionId);
+        if (subscription == null)
+            return NotFound();
+
+        subscription.UnderwritingResult = command.UnderwritingResult;
+        subscription.Message = command.Message;
+        subscription.LastUpdatedOn = command.SuspendedOn;
+
+        await dataContext.SaveChangesAsync();
+        
+        return Ok();
+    }
+ }

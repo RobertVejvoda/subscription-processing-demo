@@ -4,6 +4,7 @@ namespace SubscriptionService.Model;
 
 public class Subscription : IAggregateRoot
 {
+    // new Subscription
     public Subscription(string productId, decimal loanAmount, decimal insuredAmount)
     {
         dateTimeProvider = new UtcDateTimeProvider();
@@ -15,8 +16,8 @@ public class Subscription : IAggregateRoot
         StateHistory.Enqueue(new SubscriptionStateHistory(SubscriptionState.Created, dateTimeProvider.Now()));
     }
 
-    private Subscription(string subscriptionId, string? customerId, 
-        string productId, Product? product,
+    // saved Subscription
+    private Subscription(string subscriptionId, string? customerId, string productId,
         decimal loanAmount, decimal insuredAmount, 
         IEnumerable<SubscriptionStateHistory> stateHistory,
         UnderwritingResult? underwritingResult)
@@ -25,21 +26,21 @@ public class Subscription : IAggregateRoot
         SubscriptionId = subscriptionId;
         CustomerId = customerId;
         ProductId = productId;
-        Product = product;
         LoanAmount = loanAmount;
         InsuredAmount = insuredAmount;
         StateHistory = new Queue<SubscriptionStateHistory>(stateHistory);
         UnderwritingResult = underwritingResult;
     }
 
-    private IDateTimeProvider dateTimeProvider;
+    private readonly IDateTimeProvider dateTimeProvider;
+    
     public string? CustomerId { get; set; }
     public string SubscriptionId { get; }
     public string ProductId { get; }
-    public Product? Product { get; private set; }
     public decimal LoanAmount { get; }
     public decimal InsuredAmount { get; private set; }
     public SubscriptionState State => StateHistory.Last().State;
+    public DateTime LastUpdatedOn => StateHistory.Last().ChangedOn;
     public UnderwritingResult? UnderwritingResult { get; private set; }
     public Queue<SubscriptionStateHistory> StateHistory { get; }
 
@@ -52,29 +53,24 @@ public class Subscription : IAggregateRoot
         return this;
     }
 
-    public Subscription Normalize(ProductProxyService productService)
+    public Subscription Normalize()
     {
         if (State > SubscriptionState.Normalized)
             return this;
 
-        // enrich subscription
-        Product = productService.GetProduct(ProductId);
+        // todo: normalize subscription
 
         StateHistory.Enqueue(new SubscriptionStateHistory(SubscriptionState.Normalized, dateTimeProvider.Now()));
         return this;
     }
 
     // semantic validations
-    public SubscriptionValidationResult Validate()
+    public SubscriptionValidationResult Validate(ProductProxyService productService)
     {
         if (State > SubscriptionState.Validated)
             return SubscriptionValidationResult.Valid;
 
-        if (Product == null)
-            throw new InvalidOperationException();
-
-        if (!Product.IsActiveOn(dateTimeProvider.Now()))
-            return new SubscriptionValidationResult(false, "Product is not active.");
+        productService.EnsureActiveProduct(ProductId);
 
         StateHistory.Enqueue(new SubscriptionStateHistory(SubscriptionState.Validated, dateTimeProvider.Now()));
         return SubscriptionValidationResult.Valid;
@@ -120,14 +116,13 @@ public class Subscription : IAggregateRoot
         return this;
     }
 
-    public SubscriptionModel ToModel() => new(SubscriptionId, CustomerId, ProductId, Product,
-        LoanAmount, InsuredAmount, State.Name, UnderwritingResult, StateHistory.ToArray());
+    public SubscriptionModel ToModel() => new(SubscriptionId, CustomerId, ProductId,
+        LoanAmount, InsuredAmount, State.Name, LastUpdatedOn, UnderwritingResult, StateHistory.ToArray());
 
     public static Subscription FromModel(SubscriptionModel model) => new(
         model.SubscriptionId,
         model.CustomerId,
         model.ProductId,
-        model.Product,
         model.LoanAmount,
         model.InsuredAmount,
         new Queue<SubscriptionStateHistory>(model.History),

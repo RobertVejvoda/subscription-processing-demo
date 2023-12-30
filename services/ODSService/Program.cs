@@ -10,7 +10,6 @@ builder.Services.AddHealthChecks()
     .AddDapr();
 
 builder.Services.AddSingleton<IDateTimeProvider, UtcDateTimeProvider>();
-builder.Services.AddScoped<CustomerRepository>();
 builder.Services.AddScoped<CustomerQuery>();
 builder.Services.AddDbContext<ODSDataContext>(
     options => options
@@ -35,9 +34,7 @@ app.UseSwaggerUI(c =>
 
 
 app.UseHealthChecks("/healthz");
-app.UseCloudEvents();
 
-app.MapSubscribeHandler();
 app.MapControllers();
 
 app.Run();

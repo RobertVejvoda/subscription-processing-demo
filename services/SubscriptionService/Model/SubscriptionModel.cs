@@ -4,10 +4,10 @@ public record SubscriptionModel(
     string SubscriptionId,
     string? CustomerId,
     string ProductId,
-    Product? Product,
     decimal LoanAmount,
     decimal InsuredAmount,
-    string State,
+    string SubscriptionState,
+    DateTime UpdatedOn,
     UnderwritingResult? UnderwritingResult,
     SubscriptionStateHistory[] History)
 {

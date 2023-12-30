@@ -1,6 +1,3 @@
-using Core.Domain;
-using Core.Types;
-
 namespace CustomerService.Model;
 
 public class Customer : IAggregateRoot
@@ -12,14 +9,14 @@ public class Customer : IAggregateRoot
     public DateOnly BirthDate { get; private set; }
     public CustomerState State { get; private set; }
 
-    public Customer(string firstName, string lastName, string email, DateOnly birthDate, string id)
+    public Customer(string firstName, string lastName, DateOnly birthDate, string email)
     {
         FirstName = firstName;
         LastName = lastName;
-        Email = email;
+        Email = email.Trim().ToLowerInvariant();
         BirthDate = birthDate;
         State = CustomerState.New;
-        Id = Guid.NewGuid().ToString("n");
+        Id = ToBase64String();
     }
 
     private Customer(string id, string firstName, string lastName, DateOnly birthDate, string email,
@@ -28,6 +25,7 @@ public class Customer : IAggregateRoot
         Id = id;
         FirstName = firstName;
         LastName = lastName;
+        BirthDate = birthDate;
         Email = email;
         State = state;
     }
@@ -45,13 +43,19 @@ public class Customer : IAggregateRoot
     }
 
     public CustomerModel ToModel() 
-        => new CustomerModel(Id, FirstName, LastName, Email, BirthDate, State.Name);
+        => new(Id, FirstName, LastName, BirthDate, Email, State.Name);
 
     public static Customer FromModel(CustomerModel model) =>
-        new(model.Id, 
+        new(model.CustomerId, 
             model.FirstName,
             model.LastName,
             model.BirthDate,
             model.Email,
-            Enumeration.FromDisplayName<CustomerState>(model.State));
+            Enumeration.FromDisplayName<CustomerState>(model.CustomerState));
+
+    private string ToBase64String() => Convert.ToBase64String(Encoding.UTF8.GetBytes(Id), Base64FormattingOptions.None);
+
+    public static string GetId(string email, DateOnly birthDate) => Convert.ToBase64String(
+        Encoding.UTF8.GetBytes($"{email.Trim().ToLowerInvariant()}|{birthDate.ToString("yyyyMMdd")}"));
+    public static string FromBase64String(string base64String) => Encoding.UTF8.GetString(Convert.FromBase64String(base64String));
 }

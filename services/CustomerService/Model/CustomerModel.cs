@@ -1,9 +1,12 @@
 namespace CustomerService.Model;
 
 public record CustomerModel(
-    [Required] string Id,
+    [Required] string CustomerId,
     [Required] string FirstName,
     [Required] string LastName,
-    [Required] string Email,
     [Required] DateOnly BirthDate,
-    [Required] string State);
+    [Required] string Email,
+    [Required] string CustomerState)
+{
+    public CustomerIdModel ToIdModel => new(CustomerId);
+}

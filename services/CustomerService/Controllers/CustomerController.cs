@@ -23,57 +23,46 @@ public class CustomerController(ILogger<CustomerController> logger) : Controller
     [HttpPost("/register-customer")]
     public async Task<ActionResult<CustomerModel>> RegisterCustomer(
         [Required] RegisterCustomerCommand command,
-        [FromServices] CustomerRepository repository,
-        [FromServices] IEventBus eventBus)
+        [FromServices] CustomerRepository repository)
     {
 
-        var customer = new Customer(command.FirstName, command.LastName, command.Email, command.BirthDate, "valid");
+        var customer = new Customer(command.FirstName, command.LastName, command.BirthDate, command.Email);
         await repository.AddAsync(customer);
 
         logger.LogInformation("New customer: {FirstName} {LastName} {Email}", customer.FirstName, customer.LastName,
             customer.Email);
 
-        await eventBus.PublishAsync("customer-registered",
-            new CustomerRegisteredIntegrationEvent(
-                customer.Id,
-                customer.FirstName,
-                customer.LastName,
-                customer.Email,
-                customer.State.Name,
-                customer.BirthDate));
-        
         return Ok(customer.ToModel());
     }
 
     [HttpPost("/determine-existing-customer")]
-    public async Task<ActionResult<string>> DetermineExistingCustomer(DetermineExistingCustomerCommand command)
+    public async Task<ActionResult<CustomerIdModel>> DetermineExistingCustomer(
+        [Required] DetermineExistingCustomerCommand command,
+        [FromServices] CustomerRepository repository)
     {
-        var customerId = await Queries.CustomerQueries.IdentifyCustomer(command.Email, command.BirthDate);
-        if (string.IsNullOrWhiteSpace(customerId))
-        {
-            return NotFound();
-        }
-
-        return Ok(customerId);
+        var id = Customer.GetId(command.Email, command.BirthDate);
+        var customer = await repository.GetAsync(id);
+        return Ok(customer == null ? CustomerIdModel.Empty : new CustomerIdModel(id));
     }
 
     [HttpPost("/know-your-customer")]
-    public async Task<ActionResult> KnowYourCustomer(
+    public async Task<ActionResult<CustomerModel>> KnowYourCustomer(
         [Required] KnowYourCustomerCommand command,
         [FromServices] CustomerRepository customerRepository)
     {
-        // fake
         var customer = await customerRepository.GetAsync(command.CustomerId);
         
         // it's not a valid state, customer should have already been registered
         if (customer == null)
             return BadRequest();
 
+        // simulate activation process
         customer.Activate();
 
+        // save
         await customerRepository.AddAsync(customer);
 
-        return Ok();
+        return Ok(customer.ToModel());
     }
 
     [HttpPost("/notify-customer")]
