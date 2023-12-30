@@ -15,36 +15,51 @@ for further processing and activation. This part is outside of this scope.
 
 ## Architecture
 
-For high availability systems I've decided to split commands and queries (CQRS pattern). 
+For high availability systems I've decided to split commands and queries. 
 Each microservice has its own data store, but to provide the full visibility on customer we need to build simple ODS 
 (operational data store) which will be responsible for aggregating all customer portfolio and display a list of policies 
 or status of raised claims in future.
 
-Camunda orchestrates the flow. 
-ODS is using PubSub pattern with RabbitMQ to build customer views. 
+Camunda orchestrates all the microservices and drives the asynchronous flow. The same approach could be achieved using 
+messaging (Kafka, RabbitMQ, ...) however here we have long running process support with full visibility out of the box.
 
 ![image](assets/target_architecture.png)
 
-## Subscription Model
+## The process
 
-Subscription model is implemented using domain driven design. 
+1. Subscription API is responsible to accept any subscription request and triggers processing in Camunda. 
+ProcessInstanceKey is given back as a reference.
+2. Register Customer and Register Subscription runs in parallel.
+3. Register Subscription in ODS - purpose is to generate read only model for customer queries.
+4. Validate Subscription - semantic validation happens here. If something is missing, customer will be notified and 
+subscription becomes Suspended. ODS is updated with the actual state.
+5. Subscription Underwriting - assessment of the risk according to customer age and insured amount. 
+
+Subscription And Customer Model
+
+Both Subscription and Customer models are implemented using domain driven design. 
+To be able to properly serialize objects to database the easiest approach is map to simple POCO objects.
+I'm not a big fan of auto-mappers, but here it may be quite useful for one-way mapping.
 
 ![image](assets/subscription_states.png)
-
-## Subscription validation - underwriting process
-
-Given the age and insured amount decide risk and make a final decision whether to accept subscription request.
 
 ### Register Customer
 
 ![register customer](assets/register-customer.png)
 
+## Validate Subscription
+
+Ensure semantic validation of incoming subscription. For instance, here it validates that the product is available for sales.
+
+## Underwriting process
+
+Given customer's age and insured amount decide risk and make a final decision whether to accept subscription request.
+Since age needs to be calculated first, it's set as output parameter from "Create customer in CRM" activity and then
+available in global scope for other tasks.
+
 ### Analyze Subscription
 
 ![subscription analysis](assets/subscription-analysis.png)
-
-
-### Evaluate risks and make decision
 
 The following diagram consists of 2 decisions and shows how to chain multiple steps into a final one. 
 
@@ -71,19 +86,26 @@ Second, make a final decision according to the risk evaluated.
 
 ---
 
-
 ### Builds
 
-I'm using Docker buildx by default for multi-platform builds to support both platforms - linux/amd64 and linux/arm64.
-
 ```terminal
-docker buildx build --pull --push -t localhost:5000/customer-service -f ./CustomerService/Dockerfile --platform linux/arm64,linux/arm,linux/amd64 .
-docker buildx build --pull --push -t localhost:5000/subscription-service -f ./SubscriptionService/Dockerfile --platform linux/arm64,linux/arm,linux/amd64 .
+docker build -f ./services/CustomerService/Dockerfile .
+docker build -f ./services/SubscriptionService/Dockerfile .
+docker build -f ./services/ODSService/Dockerfile .
 ```
 
 ### Run & test
 
-`docker compose -f docker-compose.yaml up -d --build`
+```terminal 
+docker compose --env-file .env -f docker-compose-camunda.yaml up -d
+docker compose --env-file .env -f docker-compose-infra.yaml up -d
+docker compose -f docker-compose.yaml up -d
+```
+
+Apply scripts in "scripts" folder which contains migrations in numbered order.
+The other approach is to use `dotnet ef database update` command, but first 2 must be run anyway.
+
+
 
 File requests.http contains REST client scripts and is perhaps better.
 
@@ -113,3 +135,6 @@ GET http://localhost:5001/api/subscriptions/{subscriptionId}
 
 Camunda Platform 8 supports many connectors our of the box, but I prefer to leave the work on microservice 
 where Dapr does a great job to subscribe events. 
+
+Please note that it's just a demo. 
+Typically underwriting happens even before any binding offer.

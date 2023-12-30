@@ -15,6 +15,8 @@ public class CustomerEntityConfiguration : IEntityTypeConfiguration<Customer>
         builder.Property(p => p.Email).IsUnicode(false).HasMaxLength(64).IsRequired();
         builder.Property(p => p.State).IsUnicode(false).HasMaxLength(32).IsRequired();
         builder.Property(p => p.BirthDate).IsRequired();
+        builder.Property(p => p.TotalInsuredAmount).HasPrecision(12, 2).IsRequired();
+        builder.Property(p => p.TotalLoanAmount).HasPrecision(12, 2).IsRequired();
         builder.Property(p => p.LastUpdatedOn).HasPrecision(3).HasDefaultValueSql("CURRENT_TIMESTAMP").IsRequired();
     }
 }

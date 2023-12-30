@@ -1,3 +1,4 @@
+# nonk8s
 apiVersion: dapr.io/v1alpha1
 kind: Configuration
 metadata:
@@ -6,7 +7,7 @@ spec:
   tracing:
     samplingRate: "1"
     zipkin:
-      endpointAddress: "http://localhost:9411/api/v2/spans"
+      endpointAddress: "http://host.docker.internal:9412/api/v2/spans"
   metrics:
     enabled: true
   

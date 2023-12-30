@@ -76,6 +76,9 @@
     <bpmn:callActivity id="Activity_06chw5k" name="Register Customer in CRM">
       <bpmn:extensionElements>
         <zeebe:calledElement processId="register-customer-process_1434vxu" propagateAllChildVariables="false" />
+        <zeebe:ioMapping>
+          <zeebe:output source="=age" target="age" />
+        </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0j6lh9k</bpmn:incoming>
       <bpmn:outgoing>Flow_13yiunq</bpmn:outgoing>

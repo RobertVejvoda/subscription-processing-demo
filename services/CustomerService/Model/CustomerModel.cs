@@ -6,7 +6,8 @@ public record CustomerModel(
     [Required] string LastName,
     [Required] DateOnly BirthDate,
     [Required] string Email,
-    [Required] string CustomerState)
+    [Required] string CustomerState,
+    [Required] int Age)
 {
     public CustomerIdModel ToIdModel => new(CustomerId);
 }

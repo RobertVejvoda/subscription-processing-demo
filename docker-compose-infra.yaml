@@ -11,7 +11,7 @@ services:
       - "4025:1025"
 
   zipkin:
-    container_name: zipkin
+    container_name: zipkin2
     image: openzipkin/zipkin
     restart: unless-stopped
     ports:

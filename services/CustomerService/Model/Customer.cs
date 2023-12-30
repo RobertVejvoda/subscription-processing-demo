@@ -43,7 +43,7 @@ public class Customer : IAggregateRoot
     }
 
     public CustomerModel ToModel() 
-        => new(Id, FirstName, LastName, BirthDate, Email, State.Name);
+        => new(Id, FirstName, LastName, BirthDate, Email, State.Name, DateTime.Now.Year - BirthDate.Year);
 
     public static Customer FromModel(CustomerModel model) =>
         new(model.CustomerId, 
