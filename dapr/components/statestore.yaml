@@ -26,5 +26,10 @@ spec:
     - name: collectionName
       value: "daprCollection" # Optional. default: "daprCollection"
     - name: params
-      value: "?authSource=admin"
-
+      value: "?authSource=admin&ssl=false"
+auth:
+  secretStore: secrets
+scopes:
+  - customer-service
+  - subscription-service
+  - ods-service

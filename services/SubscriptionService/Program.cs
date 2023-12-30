@@ -1,13 +1,13 @@
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers()
-    .AddDapr(client => client.UseJsonSerializationOptions(new JsonSerializerOptions(JsonSerializerDefaults.Web)));
-
-// Add services to the container.
-builder.Services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<SubscriptionRepository>();
 builder.Services.AddScoped<ProductProxyService>();
+builder.Services.AddSingleton<IDateTimeProvider, UtcDateTimeProvider>();
+
+builder.Services.AddControllers()
+    .AddDapr(client => client.UseJsonSerializationOptions(new JsonSerializerOptions(JsonSerializerDefaults.Web)));
 
 builder.Services
     .AddHealthChecks()

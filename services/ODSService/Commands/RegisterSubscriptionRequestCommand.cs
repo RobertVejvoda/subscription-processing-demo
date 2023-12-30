@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ODSService.Commands;
 
-public record RegisterSubscriptionRequestCommand(
+public record SubscriptionRegisteredCommand(
     [Required] string CustomerId,
     [Required] string FirstName,
     [Required] string LastName,

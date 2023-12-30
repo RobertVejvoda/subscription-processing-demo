@@ -22,6 +22,7 @@ services:
     image: mongo:5.0.15
     restart: unless-stopped
     environment:
+      - MONGO_INITDB_DATABASE=admin
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
     ports:

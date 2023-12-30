@@ -34,24 +34,20 @@ public class CustomerController : ControllerBase
         return await customerQuery.FindSubscriptionsForCustomer(customerId);
     }
 
-    [HttpPost("/register-subscription-request")]
-    public async Task<ActionResult> RegisterSubscriptionRequest(
-        [Required] RegisterSubscriptionRequestCommand command)
+    [HttpPost("/register-subscription")]
+    public async Task<ActionResult> RegisterSubscription(
+        [Required] SubscriptionRegisteredCommand command)
     {
-        var customer = await dataContext.FindAsync<Customer>(command.CustomerId);
-        if (customer == null)
+        var customer = await dataContext.FindAsync<Customer>(command.CustomerId) ?? new Customer
         {
-            customer = new Customer
-            {
-                Id = command.CustomerId,
-                FirstName = command.FirstName,
-                LastName = command.LastName,
-                Email = command.Email,
-                State = command.CustomerState,
-                BirthDate = command.BirthDate,
-                Subscriptions = new List<Subscription>()
-            };
-        }
+            Id = command.CustomerId,
+            FirstName = command.FirstName,
+            LastName = command.LastName,
+            Email = command.Email,
+            State = command.CustomerState,
+            BirthDate = command.BirthDate,
+            Subscriptions = new List<Subscription>()
+        };
 
         customer.Subscriptions.Add(new Subscription
         {
@@ -73,7 +69,8 @@ public class CustomerController : ControllerBase
         return Ok();
     }
 
-    public async Task<ActionResult> SubscriptionAccepted(SubscriptionAcceptedCommand command)
+    [HttpPost("/accept-subscription")]
+    public async Task<ActionResult> AcceptSubscription(SubscriptionAcceptedCommand command)
     {
         var subscription = await dataContext.FindAsync<Subscription>(command.SubscriptionId);
         if (subscription == null)
@@ -88,7 +85,8 @@ public class CustomerController : ControllerBase
         return Ok();
     }
 
-    public async Task<ActionResult> SubscriptionRejected(SubscriptionRejectedCommand command)
+    [HttpPost("/reject-subscription")]
+    public async Task<ActionResult> RejectSubscription(SubscriptionRejectedCommand command)
     {
         var subscription = await dataContext.FindAsync<Subscription>(command.SubscriptionId);
         if (subscription == null)
@@ -103,7 +101,8 @@ public class CustomerController : ControllerBase
         return Ok();
     }
     
-    public async Task<ActionResult> SubscriptionSuspended(SubscriptionSuspendedCommand command)
+    [HttpPost("/suspend-subscription")]
+    public async Task<ActionResult> SuspendSubscription(SubscriptionSuspendedCommand command)
     {
         var subscription = await dataContext.FindAsync<Subscription>(command.SubscriptionId);
         if (subscription == null)

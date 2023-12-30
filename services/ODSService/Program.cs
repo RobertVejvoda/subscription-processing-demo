@@ -1,6 +1,9 @@
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddSingleton<IDateTimeProvider, UtcDateTimeProvider>();
+builder.Services.AddScoped<CustomerQuery>();
+
 builder.Services.AddControllers()
     .AddDapr(client => client.UseJsonSerializationOptions(new JsonSerializerOptions(JsonSerializerDefaults.Web)));
 
@@ -9,8 +12,6 @@ builder.Services.AddHealthChecks()
     .AddCheck("self", () => HealthCheckResult.Healthy())
     .AddDapr();
 
-builder.Services.AddSingleton<IDateTimeProvider, UtcDateTimeProvider>();
-builder.Services.AddScoped<CustomerQuery>();
 builder.Services.AddDbContext<OdsDataContext>(
     options => options
         .UseSqlServer(builder.Configuration.GetConnectionString("ODSDataMartConnectionString"))
