@@ -13,6 +13,7 @@ public class UnderwritingController : ControllerBase
         this.repository = repository;
     }
     
+    [HttpPost("/request-information")]
     public async Task<ActionResult> RequestInformation(
         [Required] RequestInformationCommand command)
     {
@@ -27,6 +28,7 @@ public class UnderwritingController : ControllerBase
         return Ok();
     }
 
+    [HttpPost("/on-information-received")]
     public async Task<ActionResult> InformationReceived(InformationReceivedCommand command)
     {
         var subscription = await repository.GetAsync(command.SubscriptionId);

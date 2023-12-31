@@ -16,7 +16,7 @@ public class Customer : IAggregateRoot
         Email = email.Trim().ToLowerInvariant();
         BirthDate = birthDate;
         State = CustomerState.New;
-        Id = ToBase64String();
+        Id = GetId(Email, BirthDate);
     }
 
     private Customer(string id, string firstName, string lastName, DateOnly birthDate, string email,
@@ -53,9 +53,6 @@ public class Customer : IAggregateRoot
             model.Email,
             Enumeration.FromDisplayName<CustomerState>(model.CustomerState));
 
-    private string ToBase64String() => Convert.ToBase64String(Encoding.UTF8.GetBytes(Id), Base64FormattingOptions.None);
-
-    public static string GetId(string email, DateOnly birthDate) => Convert.ToBase64String(
-        Encoding.UTF8.GetBytes($"{email.Trim().ToLowerInvariant()}|{birthDate.ToString("yyyyMMdd")}"));
-    public static string FromBase64String(string base64String) => Encoding.UTF8.GetString(Convert.FromBase64String(base64String));
+    public static string GetId(string email, DateOnly birthDate) => CustomerService.Helpers.Converter.ConvertToShortString(
+        $"{email.Trim().ToLowerInvariant()}|{birthDate.ToString("yyyyMMdd")}", 32);
 }
