@@ -1,44 +1,61 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using ODSService.Commands;
+using Customer = ODSService.Model.Customer;
+using Subscription = ODSService.Model.Subscription;
 
 namespace ODSService.Controllers;
 
 [ApiController]
-[Route("api/customers")]
-public class CustomerController : ControllerBase
+[Route("api")]
+public class OdsController : ControllerBase
 {
-    private readonly ILogger<CustomerController> logger;
     private readonly OdsDataContext dataContext;
-    private readonly CustomerQuery customerQuery;
+    private readonly Queries.Queries queries;
 
-    public CustomerController(
-        ILogger<CustomerController> logger, 
+    public OdsController(
         OdsDataContext dataContext,
-        CustomerQuery customerQuery)
+        Queries.Queries queries)
     {
-        this.logger = logger;
         this.dataContext = dataContext;
-        this.customerQuery = customerQuery;
+        this.queries = queries;
     }
 
-    [HttpGet]
-    public async Task<ICollection<CustomerModel>> GetCustomers(int limit = 5)
+    [HttpGet("customers/{take:int}")]
+    public async Task<ActionResult<ICollection<Customer>>> GetCustomers(int take = 15)
     {
-        return await customerQuery.FindCustomersAsync(limit);
+        return Ok(await queries.GetCustomersAsync(take));
     }
 
-    [HttpGet("{customerId}/subscriptions")]
-    public async Task<ICollection<SubscriptionModel>> GetSubscriptions(string customerId)
+    [HttpGet("customers/{customerId}/subscriptions")]
+    public async Task<ActionResult<ICollection<Subscription>>> GetCustomerSubscriptions([Required] string customerId)
     {
-        return await customerQuery.FindSubscriptionsForCustomer(customerId);
+        return Ok(await queries.GetCustomerSubscriptions(customerId));
     }
 
+    [HttpGet("subscriptions/{take:int}")]
+    public async Task<ActionResult<ICollection<Subscription>>> GetSubscriptions(int take = 15)
+    {
+        return Ok(await queries.GetSubscriptions(take));
+    }
+
+    [HttpGet("subscriptions/{processInstanceKey}")]
+    public async Task<ActionResult<Subscription?>> GetSubscriptionByProcessInstanceKey([Required] string processInstanceKey)
+    {
+        var result = await queries.FindSubscriptionByProcessInstanceKey(processInstanceKey);
+        if (result == null)
+            return NotFound();
+
+        return Ok(result);
+    }
+
+    // ZEEBE endpoints should start with root path /
+    
     [HttpPost("/register-subscription")]
     public async Task<ActionResult> RegisterSubscription(
         [Required] SubscriptionRegisteredCommand command)
     {
-        var customer = await dataContext.FindAsync<Customer>(command.CustomerId) ?? new Customer
+        var customer = await dataContext.FindAsync<Entity.Customer>(command.CustomerId) ?? new Entity.Customer
         {
             Id = command.CustomerId,
             FirstName = command.FirstName,
@@ -46,10 +63,10 @@ public class CustomerController : ControllerBase
             Email = command.Email,
             State = command.CustomerState,
             BirthDate = command.BirthDate,
-            Subscriptions = new List<Subscription>()
+            Subscriptions = new List<Entity.Subscription>()
         };
 
-        customer.Subscriptions.Add(new Subscription
+        customer.Subscriptions.Add(new Entity.Subscription
         {
             Id = command.SubscriptionId,
             InsuredAmount = command.InsuredAmount,
@@ -72,7 +89,7 @@ public class CustomerController : ControllerBase
     [HttpPost("/accept-subscription")]
     public async Task<ActionResult> AcceptSubscription(SubscriptionAcceptedCommand command)
     {
-        var subscription = await dataContext.FindAsync<Subscription>(command.SubscriptionId);
+        var subscription = await dataContext.FindAsync<Entity.Subscription>(command.SubscriptionId);
         if (subscription == null)
             return NotFound();
 
@@ -88,7 +105,7 @@ public class CustomerController : ControllerBase
     [HttpPost("/reject-subscription")]
     public async Task<ActionResult> RejectSubscription(SubscriptionRejectedCommand command)
     {
-        var subscription = await dataContext.FindAsync<Subscription>(command.SubscriptionId);
+        var subscription = await dataContext.FindAsync<Entity.Subscription>(command.SubscriptionId);
         if (subscription == null)
             return NotFound();
 
@@ -104,7 +121,7 @@ public class CustomerController : ControllerBase
     [HttpPost("/suspend-subscription")]
     public async Task<ActionResult> SuspendSubscription(SubscriptionSuspendedCommand command)
     {
-        var subscription = await dataContext.FindAsync<Subscription>(command.SubscriptionId);
+        var subscription = await dataContext.FindAsync<Entity.Subscription>(command.SubscriptionId);
         if (subscription == null)
             return NotFound();
 

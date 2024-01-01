@@ -2,7 +2,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddSingleton<IDateTimeProvider, UtcDateTimeProvider>();
-builder.Services.AddScoped<CustomerQuery>();
+builder.Services.AddScoped<Queries>();
 
 builder.Services.AddControllers()
     .AddDapr(client => client.UseJsonSerializationOptions(new JsonSerializerOptions(JsonSerializerDefaults.Web)));

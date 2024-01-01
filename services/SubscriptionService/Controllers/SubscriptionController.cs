@@ -28,10 +28,9 @@ public class SubscriptionController : ControllerBase
         return Ok(subscription.ToModel());
     }
     
-    // subscription processing
     [HttpPost]
-    public async Task<ActionResult<int>> Register(
-        [Required] RegisterSubscriptionRequestCommand command,
+    public async Task<ActionResult<string>> Register(
+        [Required, FromBody] RegisterSubscriptionRequestCommand command,
         [FromServices] IZeebeClient zeebeClient)
     {
         // trigger processing in Camunda
@@ -39,8 +38,10 @@ public class SubscriptionController : ControllerBase
             new CreateInstanceRequest("Subscription_Process_Workflow",
                 null, null, command));
 
-        return Ok(new{ response.ProcessInstanceKey });
+        return Ok(new { ProcessInstanceKey = response.ProcessInstanceKey.ToString() });
     }
+    
+    // ZEEBE endpoints should start with root path /
     
     [HttpPost("/register")]
     public async Task<ActionResult<SubscriptionModel>> Register(

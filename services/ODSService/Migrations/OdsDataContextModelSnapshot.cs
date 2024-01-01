@@ -101,8 +101,8 @@ namespace ODSService.Migrations
                         .HasColumnType("varchar(32)");
 
                     b.Property<decimal>("InsuredAmount")
-                        .HasPrecision(14, 2)
-                        .HasColumnType("decimal(14,2)");
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)");
 
                     b.Property<DateTime>("LastUpdatedOn")
                         .ValueGeneratedOnAdd()
@@ -111,19 +111,25 @@ namespace ODSService.Migrations
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<decimal>("LoanAmount")
-                        .HasPrecision(14, 2)
-                        .HasColumnType("decimal(14,2)");
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)");
 
                     b.Property<string>("Message")
+                        .HasMaxLength(-1)
+                        .IsUnicode(true)
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProcessInstanceKey")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(64)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(64)");
 
                     b.Property<string>("ProductId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(64)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(64)");
 
                     b.Property<DateTime>("ReceivedOn")
                         .HasColumnType("datetime2");
@@ -140,7 +146,9 @@ namespace ODSService.Migrations
                         .HasDefaultValueSql("NEXT VALUE FOR SubscriptionNumbers");
 
                     b.Property<string>("UnderwritingResult")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(32)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(32)");
 
                     b.HasKey("Id");
 

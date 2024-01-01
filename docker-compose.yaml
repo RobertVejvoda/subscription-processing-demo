@@ -100,5 +100,16 @@ services:
       - "./dapr/configuration/:/configuration"
     depends_on:
       - ods-service
+        
+  customer-web:
+    container_name: customer-web
+    image: customer-web:${TAG:-latest}
+    build:
+      context: .
+      dockerfile: ./clients/CustomerWeb/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5100:8080"       # app
 
   

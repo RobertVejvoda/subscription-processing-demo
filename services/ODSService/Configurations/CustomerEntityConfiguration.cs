@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Customer = ODSService.Entity.Customer;
 
 namespace ODSService.Configurations;
 

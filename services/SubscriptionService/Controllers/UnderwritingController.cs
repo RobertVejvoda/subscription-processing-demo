@@ -12,6 +12,8 @@ public class UnderwritingController : ControllerBase
     {
         this.repository = repository;
     }
+
+    // ZEEBE endpoints should start with root path /
     
     [HttpPost("/request-information")]
     public async Task<ActionResult> RequestInformation(

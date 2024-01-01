@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "blocks\Core\Core.cs
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ODSService", "services\ODSService\ODSService.csproj", "{08868EF7-A78B-4677-8AA1-E6F87EE8313B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomerWeb", "clients\CustomerWeb\CustomerWeb.csproj", "{E4C7AE3C-4B1A-4424-9D13-099CAA7210F6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{08868EF7-A78B-4677-8AA1-E6F87EE8313B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08868EF7-A78B-4677-8AA1-E6F87EE8313B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08868EF7-A78B-4677-8AA1-E6F87EE8313B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4C7AE3C-4B1A-4424-9D13-099CAA7210F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4C7AE3C-4B1A-4424-9D13-099CAA7210F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4C7AE3C-4B1A-4424-9D13-099CAA7210F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4C7AE3C-4B1A-4424-9D13-099CAA7210F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{422B1A94-1600-4010-8D67-1D9F85E3BB2C} = {B2D1D32D-244B-4FBC-9D7A-14864DAE3CBB}

@@ -19,6 +19,8 @@ public class CustomerController(ILogger<CustomerController> logger) : Controller
 
         return Ok(customer);
     }
+    
+    // ZEEBE endpoints should start with root path /
 
     [HttpPost("/register-customer")]
     public async Task<ActionResult<CustomerModel>> RegisterCustomer(
