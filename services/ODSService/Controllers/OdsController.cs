@@ -7,7 +7,7 @@ using Subscription = ODSService.Model.Subscription;
 namespace ODSService.Controllers;
 
 [ApiController]
-[Route("api")]
+[Route("/api")]
 public class OdsController : ControllerBase
 {
     private readonly OdsDataContext dataContext;
@@ -21,8 +21,8 @@ public class OdsController : ControllerBase
         this.queries = queries;
     }
 
-    [HttpGet("customers/{take:int}")]
-    public async Task<ActionResult<ICollection<Customer>>> GetCustomers(int take = 15)
+    [HttpGet("customers")]
+    public async Task<ActionResult<ICollection<Customer>>> GetCustomers([FromQuery] int take = 15)
     {
         return Ok(await queries.GetCustomersAsync(take));
     }
@@ -33,8 +33,8 @@ public class OdsController : ControllerBase
         return Ok(await queries.GetCustomerSubscriptions(customerId));
     }
 
-    [HttpGet("subscriptions/{take:int}")]
-    public async Task<ActionResult<ICollection<Subscription>>> GetSubscriptions(int take = 15)
+    [HttpGet("subscriptions")]
+    public async Task<ActionResult<ICollection<Subscription>>> GetSubscriptions([FromQuery] int take = 15)
     {
         return Ok(await queries.GetSubscriptions(take));
     }

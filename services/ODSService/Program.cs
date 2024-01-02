@@ -15,7 +15,8 @@ builder.Services.AddHealthChecks()
 builder.Services.AddDbContext<OdsDataContext>(
     options => options
         .UseSqlServer(builder.Configuration.GetConnectionString("ODSDataMartConnectionString"))
-        .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
+        .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking))
+        .AddHealthChecks();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

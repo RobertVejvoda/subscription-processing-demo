@@ -74,7 +74,7 @@ else
         // Simulate asynchronous loading to demonstrate streaming rendering
         // await Task.Delay(500);
 
-        subscriptions = await OdsApi.GetSubscriptions();
+        subscriptions = await OdsApi.GetSubscriptions(15);
 
         loading = false;    
     }

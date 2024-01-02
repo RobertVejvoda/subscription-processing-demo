@@ -1,3 +1,9 @@
+### 
+
+GET http://localhost:3610/api/subscriptions
+dapr-app-id: ods-service
+context-type: application/json
+
 ### asynchronous
 
 POST http://localhost:5001/api/subscriptions

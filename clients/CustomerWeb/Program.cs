@@ -15,7 +15,7 @@ public class Program
 
         builder.Services.AddHttpClient<ISubscriptionApi, SubscriptionApi>();
         builder.Services.AddHttpClient<IOdsApi, OdsApi>();
-        
+
         builder.Services.AddHealthChecks();
 
         var app = builder.Build();

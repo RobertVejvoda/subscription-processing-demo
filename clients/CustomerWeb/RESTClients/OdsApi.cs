@@ -14,23 +14,15 @@ public class OdsApi : IOdsApi
         restClient = RestService.For<IOdsApi>(httpClient);
     }
 
-    public async Task<List<Customer>> GetCustomers()
-    {
-        return await restClient.GetCustomers();
-    }
+    public Task<List<Customer>> GetCustomers(int take) 
+        => restClient.GetCustomers(take);
 
-    public async Task<List<Subscription>> GetSubscriptions()
-    {
-        return await restClient.GetSubscriptions();
-    }
+    public Task<List<Subscription>> GetSubscriptions(int take) 
+        => restClient.GetSubscriptions(take);
 
-    public async Task<Subscription?> GetSubscriptionByProcessInstanceKey(string processInstanceKey)
-    {
-        return await restClient.GetSubscriptionByProcessInstanceKey(processInstanceKey);
-    }
+    public Task<Subscription?> GetSubscriptionByProcessInstanceKey(string processInstanceKey) 
+        => restClient.GetSubscriptionByProcessInstanceKey(processInstanceKey);
 
-    public async Task<Subscription> GetCustomerSubscriptions(string customerId)
-    {
-        return await restClient.GetCustomerSubscriptions(customerId);
-    }
+    public Task<Subscription> GetCustomerSubscriptions(string customerId) 
+        => restClient.GetCustomerSubscriptions(customerId);
 }
