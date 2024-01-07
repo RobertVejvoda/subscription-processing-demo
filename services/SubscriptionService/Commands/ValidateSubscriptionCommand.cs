@@ -2,5 +2,4 @@ namespace SubscriptionService.Commands;
 
 public record ValidateSubscriptionCommand(
     [Required] string SubscriptionId,
-    [Required] string CustomerId,
-    [Required] string ProcessInstanceKey);
+    [Required] string CustomerId);

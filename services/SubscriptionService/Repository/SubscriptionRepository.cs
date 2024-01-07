@@ -4,10 +4,9 @@ public class SubscriptionRepository(DaprClient daprClient)
 {
     private const string StateStore = "statestore";
 
-    public async Task AddAsync(Subscription subscription, string processInstanceKey)
+    public async Task AddAsync(Subscription subscription)
     {
         var model = subscription.ToModel();
-        model.ProcessInstanceKey = processInstanceKey;
         var key = $"S-{subscription.SubscriptionId}";
         await daprClient.SaveStateAsync(StateStore, key, model);
     }

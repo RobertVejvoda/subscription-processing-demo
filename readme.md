@@ -75,15 +75,15 @@ Second, make a final decision according to the risk evaluated.
 
 ## Setup
 
-| Service                   | Application Port | Dapr sidecar HTTP port | Dapr sidecar gRPC port | Metrics port |
-|---------------------------|------------------|------------------------|------------------------|--------------|
-| SubscriptionService       | 5001             | 3601                   | 60001                  | 9091         |
-| CustomerService           | 5002             | 3602                   | 60002                  | 9092         |
-| UnderwritingService [tbd] | 5003             | 3603                   | 60003                  | 9093         |
-| PartnerService [tbd]      | 5004             | 3604                   | 60004                  | 9094         |
-| ProductService [tbd]      | 5005             | 3605                   | 60005                  | 9095         |
-| ODSService                | 5010             | 3610                   | 60010                  | 9100         | 
-| CustomerWeb               | 5100             |                        |                        |              |
+| Service                      | Application Port | Dapr sidecar HTTP port | Dapr sidecar gRPC port | Metrics port |
+|------------------------------|------------------|------------------------|------------------------|--------------|
+| SubscriptionService          | 5001             | 3601                   | 60001                  | 9001         |
+| CustomerService              | 5002             | 3602                   | 60002                  | 9002         |
+| UnderwritingService [tbd]    | 5003             | 3603                   | 60003                  | 9003         |
+| PartnerService [tbd]         | 5004             | 3604                   | 60004                  | 9004         |
+| ProductService [tbd]         | 5005             | 3605                   | 60005                  | 9005         |
+| Customer Experience API      | 5010             | 3610                   | 60010                  | 9010         |
+| CustomerWeb                  | 5100             |                        |                        |              |
 
 ---
 

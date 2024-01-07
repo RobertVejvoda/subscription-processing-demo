@@ -13,8 +13,7 @@ public class Program
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
 
-        builder.Services.AddHttpClient<ISubscriptionApi, SubscriptionApi>();
-        builder.Services.AddHttpClient<IOdsApi, OdsApi>();
+        builder.Services.AddHttpClient<ICustomerExperienceApi, CustomerExperienceApi>();
 
         builder.Services.AddHealthChecks();
 

@@ -10,7 +10,4 @@ public record SubscriptionModel(
     DateTime UpdatedOn,
     string? UnderwritingResultState,
     string? UnderwritingResultMessage,
-    SubscriptionStateHistory[] History)
-{
-    public string? ProcessInstanceKey { get; set; }
-};
+    SubscriptionStateHistory[] History);

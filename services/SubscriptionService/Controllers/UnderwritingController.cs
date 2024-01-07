@@ -1,5 +1,3 @@
-using SubscriptionService.Commands;
-
 namespace SubscriptionService.Controllers;
 
 [ApiController]
@@ -21,7 +19,7 @@ public class UnderwritingController(SubscriptionRepository repository) : Control
                 Enum.Parse<UnderwritingResultState>(command.UnderwritingResultState, true), 
                 command.UnderwritingResultMessage));
 
-        await repository.AddAsync(subscription, command.ProcessInstanceKey);
+        await repository.AddAsync(subscription);
 
         return Ok();
     }
@@ -35,7 +33,7 @@ public class UnderwritingController(SubscriptionRepository repository) : Control
         
         subscription.OnInformationReceived();
 
-        await repository.AddAsync(subscription, command.ProcessInstanceKey);
+        await repository.AddAsync(subscription);
 
         return Ok();
     }

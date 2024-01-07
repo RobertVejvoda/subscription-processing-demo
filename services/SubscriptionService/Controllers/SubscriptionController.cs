@@ -1,8 +1,3 @@
-using Camunda.Abstractions;
-using Camunda.Command;
-using SubscriptionService.Commands;
-using Subscription = SubscriptionService.Model.Subscription;
-
 namespace SubscriptionService.Controllers;
 
 [ApiController]
@@ -23,18 +18,6 @@ public class SubscriptionController(SubscriptionRepository repository) : Control
         return Ok(subscription.ToModel());
     }
     
-    [HttpPost]
-    public async Task<ActionResult<string>> Register(
-        [Required, FromBody] RegisterSubscriptionRequestCommand command,
-        [FromServices] IZeebeClient zeebeClient)
-    {
-        // trigger processing in Camunda
-        var response = await zeebeClient.CreateInstanceAsync(
-            new CreateInstanceRequest(BpmnProcessId, null, null, command));
-
-        return Ok(new { ProcessInstanceKey = response.ProcessInstanceKey.ToString() });
-    }
-    
     // ZEEBE endpoints should start with root path /
     
     [HttpPost("/register")]
@@ -44,7 +27,7 @@ public class SubscriptionController(SubscriptionRepository repository) : Control
         // register a new subscription
         var subscription = new Subscription(command.ProductId, command.LoanAmount, command.InsuredAmount);
         subscription.Register().Normalize();
-        await repository.AddAsync(subscription, command.ProcessInstanceKey);
+        await repository.AddAsync(subscription);
 
         return Ok(subscription.ToModel());
     }
@@ -62,7 +45,7 @@ public class SubscriptionController(SubscriptionRepository repository) : Control
 
         subscription.CustomerId = command.CustomerId;
         var validationResult = subscription.Validate(productProxyService);
-        await repository.AddAsync(subscription, command.ProcessInstanceKey);
+        await repository.AddAsync(subscription);
 
         if (validationResult.IsValid) 
             return Ok(subscription.ToModel());
@@ -88,8 +71,8 @@ public class SubscriptionController(SubscriptionRepository repository) : Control
         if (subscription == null)
             return NotFound();
         
-        subscription.Accept(command.Message);
-        await repository.AddAsync(subscription, command.ProcessInstanceKey);
+        subscription.Accept(command.Reason);
+        await repository.AddAsync(subscription);
 
         return Ok(subscription.ToModel());
     }
@@ -102,8 +85,8 @@ public class SubscriptionController(SubscriptionRepository repository) : Control
         if (subscription == null)
             return NotFound();
         
-        subscription.Reject(command.Message);
-        await repository.AddAsync(subscription, command.ProcessInstanceKey);
+        subscription.Reject(command.Reason);
+        await repository.AddAsync(subscription);
 
         return Ok(subscription.ToModel());
     }
@@ -116,8 +99,8 @@ public class SubscriptionController(SubscriptionRepository repository) : Control
         if (subscription == null)
             return NotFound();
         
-        subscription.Suspend(command.Message);
-        await repository.AddAsync(subscription, command.ProcessInstanceKey);
+        subscription.Suspend(command.Reason);
+        await repository.AddAsync(subscription);
 
         return Ok(subscription.ToModel());
     }

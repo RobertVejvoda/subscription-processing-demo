@@ -1,7 +1,7 @@
 ﻿@page "/"
 @using CustomerWeb.Models
 @using CustomerWeb.RESTClients
-@inject IOdsApi OdsApi;
+@inject ICustomerExperienceApi AggregationServiceApi;
 @attribute [StreamRendering]
 
 <PageTitle>Subscriptions</PageTitle>
@@ -16,7 +16,7 @@
 }
 else
 {
-    if (subscriptions.Count > 0)
+    if (subscriptions != null && subscriptions.Any())
     {
         <table class="table">
             <thead>
@@ -30,8 +30,6 @@ else
                 <th>State</th>
                 <th>Loan</th>
                 <th>Insured</th>
-                <th>Underwriting</th>
-                <th>Message</th>
                 <th>Received</th>
                 <th>Updated</th>
             </tr>
@@ -41,18 +39,16 @@ else
             {
                 <tr>
                     <td>@subscription.ProcessInstanceKey</td>
-                    <td>@subscription.SubscriptionId</td>
-                    <td>@subscription.CustomerId</td>
+                    <td>@subscription.SubscriptionId ?? "N/A"</td>
+                    <td>@subscription.CustomerId ?? "N/A"</td>
                     <td>@subscription.FirstName</td>
                     <td>@subscription.LastName</td>
                     <td>@subscription.Email</td>
-                    <td>@subscription.SubscriptionState</td>
+                    <td>@subscription.SubscriptionState ?? "N/A"</td>
                     <td>@subscription.LoanAmount.ToString("C0")</td>
                     <td>@subscription.InsuredAmount.ToString("C0")</td>
-                    <td>@subscription.UnderwritingResult</td>
-                    <td>@subscription.Message</td>
-                    <td>@subscription.ReceivedOn?.ToShortDateString()</td>
-                    <td>@subscription.LastUpdatedOn?.ToShortDateString()</td>
+                    <td>@subscription.ReceivedOn.ToShortDateString()</td>
+                    <td>@subscription.LastUpdatedOn.ToShortDateString()</td>
                 </tr>
             }
             </tbody>
@@ -67,7 +63,7 @@ else
 }
 
 @code {
-    private List<Subscription> subscriptions = [];
+    private IEnumerable<SubscriptionRequestModel>? subscriptions;
     private bool loading = true;
     
     protected override async Task OnInitializedAsync() => await Reload();
@@ -77,9 +73,10 @@ else
         loading = true;
         
         // Simulate asynchronous loading to demonstrate streaming rendering
+        // todo: remove
         await Task.Delay(500);
 
-        subscriptions = await OdsApi.GetSubscriptions(15);
+        subscriptions = await AggregationServiceApi.GetSubscriptionRequests();
 
         loading = false;    
     }

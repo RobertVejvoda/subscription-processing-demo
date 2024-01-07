@@ -8,6 +8,8 @@
       <bpmn:extensionElements>
         <zeebe:calledDecision decisionId="underwriting-decision" resultVariable="underwritingDecision" />
         <zeebe:ioMapping>
+          <zeebe:input source="=age" target="age" />
+          <zeebe:input source="=insuredAmount" target="insuredAmount" />
           <zeebe:output source="=underwritingResult" target="underwritingResultState" />
           <zeebe:output source="=message" target="underwritingResultMessage" />
         </zeebe:ioMapping>
@@ -30,7 +32,6 @@
           <zeebe:input source="=underwritingResultState" target="underwritingResultState" />
           <zeebe:input source="=underwritingResultMessage" target="underwritingResultMessage" />
           <zeebe:input source="=subscriptionId" target="subscriptionId" />
-          <zeebe:input source="=processInstanceKey" target="processInstanceKey" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_05xcdnn</bpmn:incoming>
