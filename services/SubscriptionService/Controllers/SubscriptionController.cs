@@ -7,17 +7,12 @@ namespace SubscriptionService.Controllers;
 
 [ApiController]
 [Route("/api/subscriptions")]
-public class SubscriptionController : ControllerBase
+public class SubscriptionController(SubscriptionRepository repository) : ControllerBase
 {
-    private readonly SubscriptionRepository repository;
-
-    public SubscriptionController(SubscriptionRepository repository)
-    {
-        this.repository = repository;
-    }
+    private const string BpmnProcessId = "Subscription_Process_Workflow";
     
     [HttpGet("{subscriptionId}")]
-    public async Task<ActionResult<SubscriptionModel>> Get(string subscriptionId)
+    public async Task<ActionResult<SubscriptionModel>> GetSubscription(string subscriptionId)
     {
         Guard.ArgumentNotNullOrEmpty(subscriptionId);
 
@@ -35,8 +30,7 @@ public class SubscriptionController : ControllerBase
     {
         // trigger processing in Camunda
         var response = await zeebeClient.CreateInstanceAsync(
-            new CreateInstanceRequest("Subscription_Process_Workflow",
-                null, null, command));
+            new CreateInstanceRequest(BpmnProcessId, null, null, command));
 
         return Ok(new { ProcessInstanceKey = response.ProcessInstanceKey.ToString() });
     }
@@ -49,22 +43,7 @@ public class SubscriptionController : ControllerBase
     {
         // register a new subscription
         var subscription = new Subscription(command.ProductId, command.LoanAmount, command.InsuredAmount);
-        subscription.Register();
-        await repository.AddAsync(subscription, command.ProcessInstanceKey);
-
-        // set object back to Camunda
-        return Ok(subscription.ToModel());
-    }
-
-    [HttpPost("/normalize")]
-    public async Task<ActionResult<SubscriptionModel>> Normalize(
-        [Required] NormalizeSubscriptionCommand command)
-    {
-        var subscription = await repository.GetAsync(command.SubscriptionId);
-        if (subscription == null)
-            return NotFound();
-        
-        subscription.Normalize();
+        subscription.Register().Normalize();
         await repository.AddAsync(subscription, command.ProcessInstanceKey);
 
         return Ok(subscription.ToModel());
@@ -89,7 +68,7 @@ public class SubscriptionController : ControllerBase
             return Ok(subscription.ToModel());
 
         // identify current job
-        var jobKey = httpContextAccessor.HttpContext?.Request.Headers["X-Zeebe-Process-Instance-Key"];
+        var jobKey = httpContextAccessor.HttpContext?.Request.Headers["X-Zeebe-Job-Key"];
         if (!jobKey.HasValue)
             return BadRequest();
 

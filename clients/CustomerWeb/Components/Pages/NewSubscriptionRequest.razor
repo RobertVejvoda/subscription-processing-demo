@@ -4,63 +4,67 @@
 @rendermode InteractiveServer
 @inject ISubscriptionApi SubscriptionApi;
 
-<PageTitle>Subscription</PageTitle>
+<PageTitle>Register Subscription</PageTitle>
 
-<h1>Register Subscription Request</h1>
+<h1>Register Subscription</h1>
 
-<p role="status">ProcessInstanceKey: @ProcessInstanceKey.</p>
+@if (!IsNew())
+{
+    <p role="status">ProcessInstanceKey: @ProcessInstanceKey.</p>
+}
 
-<EditForm Model="@subscriptionRequest" OnValidSubmit="@Register">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+<EditForm Model="@subscriptionRequest" OnValidSubmit="@Register" class="row g-3">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
 
-    <div class="form-group">
-        <label for="firstName">First Name:</label>
-        <InputText id="firstName" class="form-control" @bind-Value="@subscriptionRequest.FirstName" />
-        <ValidationMessage For="@(() => subscriptionRequest.FirstName)" />
+    <div class="col-md-6">
+        <label for="firstName" class="form-label">First name</label>
+        <InputText id="firstName" class="form-control" @bind-Value="@subscriptionRequest.FirstName"/>
+        <ValidationMessage For="@(() => subscriptionRequest.FirstName)"/>
     </div>
 
-    <div class="form-group">
-        <label for="lastName">Last Name:</label>
-        <InputText id="lastName" class="form-control" @bind-Value="@subscriptionRequest.LastName" />
-        <ValidationMessage For="@(() => subscriptionRequest.LastName)" />
+    <div class="col-md-6">
+        <label for="lastName" class="form-label">Last name</label>
+        <InputText id="lastName" class="form-control" @bind-Value="@subscriptionRequest.LastName"/>
+        <ValidationMessage For="@(() => subscriptionRequest.LastName)"/>
     </div>
 
-    <div class="form-group">
-        <label for="email">Email:</label>
-        <InputText id="email" class="form-control" @bind-Value="@subscriptionRequest.Email" />
-        <ValidationMessage For="@(() => subscriptionRequest.Email)" />
+    <div class="col-md-6">
+        <label for="email" class="form-label">Email</label>
+        <InputText id="email" class="form-control" @bind-Value="@subscriptionRequest.Email"/>
+        <ValidationMessage For="@(() => subscriptionRequest.Email)"/>
     </div>
 
-    <div class="form-group">
-        <label for="birthDate">Birth Date:</label>
+    <div class="col-md-6">
+        <label for="birthDate">Birth Date</label>
         <InputDate id="birthDate" class="form-control" @bind-Value="@subscriptionRequest.BirthDate" />
-        <ValidationMessage For="@(() => subscriptionRequest.BirthDate)" />
+        <ValidationMessage For="@(() => subscriptionRequest.BirthDate)"/>
     </div>
 
-    <div class="form-group">
-        <label for="loanAmount">Loan Amount:</label>
-        <InputNumber id="loanAmount" class="form-control" @bind-Value="@subscriptionRequest.LoanAmount" />
-        <ValidationMessage For="@(() => subscriptionRequest.LoanAmount)" />
+    <div class="col-md-6">
+        <label for="loanAmount">Loan amount</label>
+        <InputNumber id="loanAmount" class="form-control"  @bind-Value="@subscriptionRequest.LoanAmount" />
+        <ValidationMessage For="@(() => subscriptionRequest.LoanAmount)"/>
+    </div>
+    
+    <div class="col-md-6">
+        <label for="insuredAmount">Insured amount</label>
+        <InputNumber id="insuredAmount" class="form-control" @bind-Value="@subscriptionRequest.InsuredAmount"/>
+        <ValidationMessage For="@(() => subscriptionRequest.InsuredAmount)"/>
     </div>
 
-    <div class="form-group">
-        <label for="insuredAmount">Insured Amount:</label>
-        <InputNumber id="insuredAmount" class="form-control" @bind-Value="@subscriptionRequest.InsuredAmount" />
-        <ValidationMessage For="@(() => subscriptionRequest.InsuredAmount)" />
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary" disabled="@(!IsNew())">Register</button>
     </div>
-
-    <div class="form-group">
-        <label for="productId">Product ID:</label>
-        <InputText id="productId" class="form-control" @bind-Value="@subscriptionRequest.ProductId" />
-        <ValidationMessage For="@(() => subscriptionRequest.ProductId)" />
-    </div>
-
-    <button type="submit" class="btn btn-primary" disabled="@(!IsNew())">Register</button>
 </EditForm>
 
+
 @code {
-    private readonly RegisterSubscriptionRequest subscriptionRequest = new();
+
+    private readonly RegisterSubscriptionRequest subscriptionRequest = new()
+    {
+        ProductId = "1"
+    };
 
     private string? ProcessInstanceKey { get; set; }
 

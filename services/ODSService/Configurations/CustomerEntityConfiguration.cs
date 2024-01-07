@@ -9,7 +9,7 @@ public class CustomerEntityConfiguration : IEntityTypeConfiguration<Customer>
     {
         builder.ToTable("Customer");
         builder.HasKey(p => p.Id).IsClustered();
-        builder.Property(p => p.Id).IsUnicode(false).HasMaxLength(32).IsRequired();
+        builder.Property(p => p.Id).IsUnicode(false).HasMaxLength(128).IsRequired();
         builder.Property(p => p.CustomerNo).HasDefaultValueSql("NEXT VALUE FOR CustomerNumbers");
         builder.Property(p => p.FirstName).IsUnicode().HasMaxLength(32).IsRequired();
         builder.Property(p => p.LastName).IsUnicode().HasMaxLength(64).IsRequired();

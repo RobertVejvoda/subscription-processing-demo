@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0iuz2kw" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.18.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.3.0">
-  <bpmn:process id="subscripion_analysis_process_1gvb6cf" name="Subscription analysis process" isExecutable="true">
+  <bpmn:process id="subscripion_analysis_process_1gvb6cf" name="subscription-analysis" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1" name="Analyse subscription">
       <bpmn:outgoing>Flow_1u4oobr</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:businessRuleTask id="Activity_17v4hw5" name="Analyze Subscription">
       <bpmn:extensionElements>
-        <zeebe:calledDecision decisionId="underwritingDecision" resultVariable="underwritingDecision" />
+        <zeebe:calledDecision decisionId="underwriting-decision" resultVariable="underwritingDecision" />
         <zeebe:ioMapping>
-          <zeebe:output source="=underwritingDecision.underwritingResult" target="underwritingResult" />
-          <zeebe:output source="=underwritingDecision.message" target="message" />
+          <zeebe:output source="=underwritingResult" target="underwritingResultState" />
+          <zeebe:output source="=message" target="underwritingResultMessage" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1u4oobr</bpmn:incoming>
@@ -26,6 +26,12 @@
     <bpmn:sendTask id="Activity_143j4cf" name="Request Information">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="request-information" />
+        <zeebe:ioMapping>
+          <zeebe:input source="=underwritingResultState" target="underwritingResultState" />
+          <zeebe:input source="=underwritingResultMessage" target="underwritingResultMessage" />
+          <zeebe:input source="=subscriptionId" target="subscriptionId" />
+          <zeebe:input source="=processInstanceKey" target="processInstanceKey" />
+        </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_05xcdnn</bpmn:incoming>
       <bpmn:outgoing>Flow_0k01rgg</bpmn:outgoing>
@@ -35,7 +41,7 @@
       <bpmn:outgoing>Flow_1wry6k6</bpmn:outgoing>
     </bpmn:receiveTask>
     <bpmn:sequenceFlow id="Flow_05xcdnn" sourceRef="Gateway_1nohqiy" targetRef="Activity_143j4cf">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=underwritingResult="pending"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=underwritingResultState="Pending"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0k01rgg" sourceRef="Activity_143j4cf" targetRef="Activity_0dwutth" />
     <bpmn:sequenceFlow id="Flow_1wry6k6" sourceRef="Activity_0dwutth" targetRef="Activity_17v4hw5" />
@@ -67,18 +73,18 @@
           <dc:Bounds x="522" y="106" width="76" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_03g808i_di" bpmnElement="Event_03g808i">
-        <dc:Bounds x="672" y="159" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="655" y="202" width="81" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_16vzqw6_di" bpmnElement="Activity_143j4cf">
         <dc:Bounds x="510" y="320" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_04h2xoo_di" bpmnElement="Activity_0dwutth">
         <dc:Bounds x="310" y="320" width="100" height="80" />
         <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_03g808i_di" bpmnElement="Event_03g808i">
+        <dc:Bounds x="672" y="159" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="655" y="202" width="81" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1ce2s8g_di" bpmnElement="Flow_1ce2s8g">
         <di:waypoint x="410" y="177" />

@@ -23,6 +23,11 @@
     <bpmn:serviceTask id="Activity_16uvzke" name="Determine existing customer">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="determine-existing-customer" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="=birthDate" target="birthDate" />
+          <zeebe:input source="=email" target="email" />
+          <zeebe:output source="=customerId" target="customerId" />
+        </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_06ss4zs</bpmn:incoming>
       <bpmn:outgoing>Flow_0cw9lq8</bpmn:outgoing>
@@ -30,6 +35,12 @@
     <bpmn:serviceTask id="Activity_1nxhm2r" name="Register customer in CRM">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="register-customer" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="=firstName" target="firstName" />
+          <zeebe:input source="=lastName" target="lastName" />
+          <zeebe:input source="=email" target="email" />
+          <zeebe:input source="=birthDate" target="birthDate" />
+        </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1y0g0bd</bpmn:incoming>
       <bpmn:outgoing>Flow_0mb2o9s</bpmn:outgoing>
@@ -37,6 +48,9 @@
     <bpmn:serviceTask id="Activity_16yaii3" name="Know your customer">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="know-your-customer" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="=customerId" target="customerId" />
+        </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0mb2o9s</bpmn:incoming>
       <bpmn:incoming>Flow_128ssrn</bpmn:incoming>

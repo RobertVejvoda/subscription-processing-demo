@@ -30,6 +30,9 @@
       <Content Include="..\..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
+      <Content Update="appsettings.Production\.json">
+        <Link>.json</Link>
+      </Content>
     </ItemGroup>
 
     <ItemGroup>

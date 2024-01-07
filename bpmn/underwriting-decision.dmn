@@ -17,7 +17,7 @@
           <text>&lt; 0.5</text>
         </inputEntry>
         <outputEntry id="LiteralExpression_1bcvb2y">
-          <text>"accepted"</text>
+          <text>"Accepted"</text>
         </outputEntry>
         <outputEntry id="LiteralExpression_1ku440v">
           <text>"We're pleased to announce that you've passed our medical assessment."</text>
@@ -28,7 +28,7 @@
           <text>[0.5..1[</text>
         </inputEntry>
         <outputEntry id="LiteralExpression_0dxho4r">
-          <text>"pending"</text>
+          <text>"Pending"</text>
         </outputEntry>
         <outputEntry id="LiteralExpression_1n1c5tr">
           <text>"Please enter medical examination with our doctor."</text>
@@ -39,7 +39,7 @@
           <text>1</text>
         </inputEntry>
         <outputEntry id="LiteralExpression_06ltfnn">
-          <text>"rejected"</text>
+          <text>"Rejected"</text>
         </outputEntry>
         <outputEntry id="LiteralExpression_07mnv9k">
           <text>"We're sorry, but can't accept your request."</text>

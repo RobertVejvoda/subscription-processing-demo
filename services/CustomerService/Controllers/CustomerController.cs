@@ -1,3 +1,5 @@
+using Camunda.Abstractions;
+using Camunda.Command;
 using Dapr.Client;
 
 namespace CustomerService.Controllers;
@@ -6,8 +8,10 @@ namespace CustomerService.Controllers;
 [Route("/api/customers")]
 public class CustomerController(ILogger<CustomerController> logger) : ControllerBase
 {
+    private const string BpmnProcessId = "register-customer-process_1434vxu";
+    
     [HttpGet("{customerId}")]
-    public async Task<ActionResult<string>> GetCustomer(
+    public async Task<ActionResult<CustomerModel>> GetCustomer(
         [Required, FromRoute] string customerId, 
         [FromServices] CustomerRepository repository)
     {
@@ -17,14 +21,25 @@ public class CustomerController(ILogger<CustomerController> logger) : Controller
             return NotFound();
         }
 
-        return Ok(customer);
+        return Ok(customer.ToModel());
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<string>> Register(
+        [Required, FromBody] RegisterCustomerCommand command,
+        [FromServices] IZeebeClient zeebeClient)
+    {
+        var request = new CreateInstanceRequest(BpmnProcessId, null, null, command);
+        var response = await zeebeClient.CreateInstanceAsync(request);
+
+        return Ok(new { ProcessInstanceKey = response.ProcessInstanceKey.ToString() });
     }
     
     // ZEEBE endpoints should start with root path /
 
     [HttpPost("/register-customer")]
     public async Task<ActionResult<CustomerModel>> RegisterCustomer(
-        [Required] RegisterCustomerCommand command,
+        [Required, FromBody] RegisterCustomerCommand command,
         [FromServices] CustomerRepository repository)
     {
 
@@ -39,17 +54,17 @@ public class CustomerController(ILogger<CustomerController> logger) : Controller
 
     [HttpPost("/determine-existing-customer")]
     public async Task<ActionResult<CustomerIdModel>> DetermineExistingCustomer(
-        [Required] DetermineExistingCustomerCommand command,
+        [Required, FromBody] DetermineExistingCustomerCommand command,
         [FromServices] CustomerRepository repository)
     {
         var id = Customer.GetId(command.Email, command.BirthDate);
         var customer = await repository.GetAsync(id);
-        return Ok(customer == null ? CustomerIdModel.Empty : new CustomerIdModel(id));
+        return Ok(customer == null ? new CustomerIdModel(null) : new CustomerIdModel(id));
     }
 
     [HttpPost("/know-your-customer")]
     public async Task<ActionResult<CustomerModel>> KnowYourCustomer(
-        [Required] KnowYourCustomerCommand command,
+        [Required, FromBody] KnowYourCustomerCommand command,
         [FromServices] CustomerRepository customerRepository)
     {
         var customer = await customerRepository.GetAsync(command.CustomerId);
@@ -69,7 +84,7 @@ public class CustomerController(ILogger<CustomerController> logger) : Controller
 
     [HttpPost("/notify-customer")]
     public async Task<ActionResult> NotifyCustomer(
-        [Required] NotifyCustomerCommand command,
+        [Required, FromBody] NotifyCustomerCommand command,
         [FromServices] CustomerRepository customerRepository,
         [FromServices] DaprClient daprClient)
     {

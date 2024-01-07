@@ -1,4 +1,5 @@
 using Core.Domain;
+using Microsoft.OpenApi.Extensions;
 
 namespace SubscriptionService.Model;
 
@@ -95,21 +96,21 @@ public class Subscription : IAggregateRoot
         return this;
     }
 
-    public Subscription Accept(string reason)
+    public Subscription Accept(string? reason)
     {
         UnderwritingResult = new UnderwritingResult(UnderwritingResultState.Accepted, reason);
         StateHistory.Enqueue(new SubscriptionStateHistory(SubscriptionState.Accepted, dateTimeProvider.Now()));
         return this;
     }
 
-    public Subscription Reject(string reason)
+    public Subscription Reject(string? reason)
     {
         UnderwritingResult = new UnderwritingResult(UnderwritingResultState.Rejected, reason);
         StateHistory.Enqueue(new SubscriptionStateHistory(SubscriptionState.Rejected, dateTimeProvider.Now()));
         return this;
     }
 
-    public Subscription Suspend(string reason)
+    public Subscription Suspend(string? reason)
     {
         UnderwritingResult = new UnderwritingResult(UnderwritingResultState.Pending, reason);
         StateHistory.Enqueue(new SubscriptionStateHistory(SubscriptionState.Suspended, dateTimeProvider.Now()));
@@ -117,14 +118,26 @@ public class Subscription : IAggregateRoot
     }
 
     public SubscriptionModel ToModel() => new(SubscriptionId, CustomerId, ProductId,
-        LoanAmount, InsuredAmount, State.Name, LastUpdatedOn, UnderwritingResult, StateHistory.ToArray());
+        LoanAmount, InsuredAmount, State.GetDisplayName(), LastUpdatedOn, 
+        UnderwritingResult?.State.GetDisplayName(), UnderwritingResult?.Reason, StateHistory.ToArray());
 
-    public static Subscription FromModel(SubscriptionModel model) => new(
-        model.SubscriptionId,
-        model.CustomerId,
-        model.ProductId,
-        model.LoanAmount,
-        model.InsuredAmount,
-        new Queue<SubscriptionStateHistory>(model.History),
-        model.UnderwritingResult);
+    public static Subscription FromModel(SubscriptionModel model)
+    {
+        UnderwritingResult? underwritingResult = null;
+        if (Enum.TryParse(model.UnderwritingResultState?.ToCharArray(),
+                true, out UnderwritingResultState underwritingResultState))
+        {
+            underwritingResult = new UnderwritingResult(underwritingResultState, model.UnderwritingResultMessage);
+        }
+        
+        return new Subscription(
+            model.SubscriptionId,
+            model.CustomerId,
+            model.ProductId,
+            model.LoanAmount,
+            model.InsuredAmount,
+            new Queue<SubscriptionStateHistory>(model.History),
+            underwritingResult);      
+        
+    } 
 }

@@ -1,12 +1,12 @@
-### 
+### get subscription requests
 
-GET http://localhost:3610/api/subscriptions
+GET http://localhost:3610/api/subscriptions?take=15
 dapr-app-id: ods-service
 context-type: application/json
 
-### asynchronous
+### post a new subscription request
 
-POST http://localhost:5001/api/subscriptions
+POST http://localhost:3601/api/subscriptions
 dapr-app-id: subscription-service
 content-type: application/json
 
@@ -14,31 +14,15 @@ content-type: application/json
   "firstName": "Homer",
   "lastName": "Simpson",
   "email": "homer.simpson@thesimpsons.movie",
-  "age": 30,
+  "birthDate": "1976-01-06",
   "productId": "1", 
   "loanAmount": 200000,
   "insuredAmount": 100000
 }
 
-### synchronous
+### register a new customer
 
-POST http://localhost:5001/api/subscriptions/register
-dapr-app-id: subscription-service
-content-type: application/json
-
-{
-  "firstName": "Bart",
-  "lastName": "Simpson",
-  "email": "bart.simpson@thesimpsons.movie",
-  "age": 10,
-  "productId": "1",
-  "loanAmount": 10000,
-  "insuredAmount": 10000
-}
-
-### 
-
-POST http://localhost:5002/api/customers
+POST http://localhost:3602/register-customer
 dapr-app-id: customer-service
 Content-Type: application/json
 
@@ -46,7 +30,11 @@ Content-Type: application/json
   "firstName": "Homer",
   "lastName": "Simpson",
   "email": "homer.simpson@thesimpsons.movie",
-  "age": 30
+  "birthDate": "1976-01-06"
 }   
+
+### get customer
+
+
 
 

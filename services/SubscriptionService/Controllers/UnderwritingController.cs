@@ -4,15 +4,8 @@ namespace SubscriptionService.Controllers;
 
 [ApiController]
 [Route("/api/underwriting")]
-public class UnderwritingController : ControllerBase
+public class UnderwritingController(SubscriptionRepository repository) : ControllerBase
 {
-    private readonly SubscriptionRepository repository;
-
-    public UnderwritingController(SubscriptionRepository repository)
-    {
-        this.repository = repository;
-    }
-
     // ZEEBE endpoints should start with root path /
     
     [HttpPost("/request-information")]
@@ -23,7 +16,10 @@ public class UnderwritingController : ControllerBase
         if (subscription == null)
             return NotFound();
         
-        subscription.RequestInformation(command.UnderwritingResult);
+        subscription.RequestInformation(
+            new UnderwritingResult(
+                Enum.Parse<UnderwritingResultState>(command.UnderwritingResultState, true), 
+                command.UnderwritingResultMessage));
 
         await repository.AddAsync(subscription, command.ProcessInstanceKey);
 

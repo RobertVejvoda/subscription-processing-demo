@@ -8,10 +8,6 @@
 
 <h1>Subscriptions</h1>
 
-<div>
-    <button class="btn btn-primary" onclick="@Reload()">Reload</button>
-</div>
-
 @if (loading)
 {
     <p>
@@ -20,59 +16,68 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Key</th>
-            <th>Subscription ID</th>
-            <th>Customer ID</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Email</th>
-            <th>State</th>
-            <th>Loan</th>
-            <th>Insured</th>
-            <th>Underwriting</th>
-            <th>Message</th>
-            <th>Received</th>
-            <th>Updated</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var subscription in subscriptions)
-        {
+    if (subscriptions.Count > 0)
+    {
+        <table class="table">
+            <thead>
             <tr>
-                <td>@subscription.ProcessInstanceKey</td>
-                <td>@subscription.SubscriptionId</td>
-                <td>@subscription.CustomerId</td>
-                <td>@subscription.FirstName</td>
-                <td>@subscription.LastName</td>
-                <td>@subscription.Email</td>
-                <td>@subscription.SubscriptionState</td>
-                <td>@subscription.LoanAmount.ToString("C0")</td>
-                <td>@subscription.InsuredAmount.ToString("C0")</td>
-                <td>@subscription.UnderwritingResult</td>
-                <td>@subscription.Message</td>
-                <td>@subscription.ReceivedOn?.ToShortDateString()</td>
-                <td>@subscription.LastUpdatedOn?.ToShortDateString()</td>
+                <th>Key</th>
+                <th>Subscription ID</th>
+                <th>Customer ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>State</th>
+                <th>Loan</th>
+                <th>Insured</th>
+                <th>Underwriting</th>
+                <th>Message</th>
+                <th>Received</th>
+                <th>Updated</th>
             </tr>
-        }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+            @foreach (var subscription in subscriptions)
+            {
+                <tr>
+                    <td>@subscription.ProcessInstanceKey</td>
+                    <td>@subscription.SubscriptionId</td>
+                    <td>@subscription.CustomerId</td>
+                    <td>@subscription.FirstName</td>
+                    <td>@subscription.LastName</td>
+                    <td>@subscription.Email</td>
+                    <td>@subscription.SubscriptionState</td>
+                    <td>@subscription.LoanAmount.ToString("C0")</td>
+                    <td>@subscription.InsuredAmount.ToString("C0")</td>
+                    <td>@subscription.UnderwritingResult</td>
+                    <td>@subscription.Message</td>
+                    <td>@subscription.ReceivedOn?.ToShortDateString()</td>
+                    <td>@subscription.LastUpdatedOn?.ToShortDateString()</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>
+            <em>There are no subscriptions found matching your criteria.</em>
+        </p>
+    }
 }
 
 @code {
     private List<Subscription> subscriptions = [];
     private bool loading = true;
     
-    protected override Task OnInitializedAsync() => Reload();
+    protected override async Task OnInitializedAsync() => await Reload();
     
     private async Task Reload()
     {
         loading = true;
         
         // Simulate asynchronous loading to demonstrate streaming rendering
-        // await Task.Delay(500);
+        await Task.Delay(500);
 
         subscriptions = await OdsApi.GetSubscriptions(15);
 

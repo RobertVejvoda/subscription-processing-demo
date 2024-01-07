@@ -2,5 +2,6 @@ namespace SubscriptionService.Commands;
 
 public record RequestInformationCommand(
     [Required] string SubscriptionId, 
-    [Required] UnderwritingResult UnderwritingResult,
+    [Required] string UnderwritingResultState,
+    [Required] string UnderwritingResultMessage,
     [Required] string ProcessInstanceKey);

@@ -8,7 +8,8 @@ public record SubscriptionModel(
     decimal InsuredAmount,
     string SubscriptionState,
     DateTime UpdatedOn,
-    UnderwritingResult? UnderwritingResult,
+    string? UnderwritingResultState,
+    string? UnderwritingResultMessage,
     SubscriptionStateHistory[] History)
 {
     public string? ProcessInstanceKey { get; set; }

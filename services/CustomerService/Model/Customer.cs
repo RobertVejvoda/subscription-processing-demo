@@ -1,3 +1,5 @@
+using Microsoft.OpenApi.Extensions;
+
 namespace CustomerService.Model;
 
 public class Customer : IAggregateRoot
@@ -43,7 +45,7 @@ public class Customer : IAggregateRoot
     }
 
     public CustomerModel ToModel() 
-        => new(Id, FirstName, LastName, BirthDate, Email, State.Name, DateTime.Now.Year - BirthDate.Year);
+        => new(Id, FirstName, LastName, BirthDate, Email, State.GetDisplayName(), DateTime.Now.Year - BirthDate.Year);
 
     public static Customer FromModel(CustomerModel model) =>
         new(model.CustomerId, 
@@ -51,8 +53,13 @@ public class Customer : IAggregateRoot
             model.LastName,
             model.BirthDate,
             model.Email,
-            Enumeration.FromDisplayName<CustomerState>(model.CustomerState));
+            Enum.Parse<CustomerState>(model.CustomerState));
 
-    public static string GetId(string email, DateOnly birthDate) => CustomerService.Helpers.Converter.ConvertToShortString(
-        $"{email.Trim().ToLowerInvariant()}|{birthDate.ToString("yyyyMMdd")}", 32);
+    public static string GetId(string email, DateOnly birthDate)
+    {
+        var input = $"{birthDate.ToString("yyyy-MM-dd")}|{email.Trim().ToLowerInvariant()}";
+        var bytes = Encoding.UTF8.GetBytes(input);
+        var base64 = Convert.ToBase64String(bytes);
+        return base64.TrimEnd('=');
+    }
 }

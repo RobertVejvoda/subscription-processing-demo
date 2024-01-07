@@ -1,12 +1,8 @@
 namespace SubscriptionService.Model;
 
-public class UnderwritingResultState : Enumeration
+public enum UnderwritingResultState
 {
-    public static UnderwritingResultState Accepted = new(10, nameof(Accepted));
-    public static UnderwritingResultState Pending = new(20, nameof(Pending));
-    public static UnderwritingResultState Rejected = new(30, nameof(Rejected));
-
-    private UnderwritingResultState(int id, string name) : base(id, name)
-    {
-    }
+    Accepted = 10,
+    Pending = 20,
+    Rejected = 30
 }

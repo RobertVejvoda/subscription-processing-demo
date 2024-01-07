@@ -1,19 +1,15 @@
 namespace SubscriptionService.Model;
 
-public class SubscriptionState : Enumeration
+public enum SubscriptionState
 {
-    public static SubscriptionState Created = new SubscriptionState(10, nameof(Created));
-    public static SubscriptionState Registered = new SubscriptionState(20, nameof(Registered));
-    public static SubscriptionState Normalized = new SubscriptionState(30, nameof(Normalized));
-    public static SubscriptionState Validated = new SubscriptionState(35, nameof(Validated));
-    public static SubscriptionState InAnalysis = new SubscriptionState(40, "In analysis");
-    public static SubscriptionState Pending = new SubscriptionState(50, nameof(Pending));
-    public static SubscriptionState Suspended = new SubscriptionState(60, nameof(Suspended));
-    public static SubscriptionState Accepted = new SubscriptionState(70, nameof(Accepted));
-    public static SubscriptionState Rejected = new SubscriptionState(80, nameof(Rejected));
-    public static SubscriptionState Canceled = new SubscriptionState(90, nameof(Canceled));
-
-    private SubscriptionState(int id, string name) : base(id, name)
-    {
-    }
+    Created = 10,
+    Registered = 20,
+    Normalized = 30,
+    Validated = 35, 
+    InAnalysis = 40,
+    Pending = 50,
+    Suspended = 60,
+    Accepted = 70,
+    Rejected = 80,
+    Canceled = 90
 }

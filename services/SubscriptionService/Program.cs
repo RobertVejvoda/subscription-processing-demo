@@ -1,3 +1,6 @@
+using Camunda;
+using Camunda.Abstractions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -5,6 +8,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<SubscriptionRepository>();
 builder.Services.AddScoped<ProductProxyService>();
 builder.Services.AddSingleton<IDateTimeProvider, UtcDateTimeProvider>();
+builder.Services.AddSingleton<IZeebeClient, ZeebeClient>();
 
 builder.Services.AddControllers()
     .AddDapr(client => client.UseJsonSerializationOptions(new JsonSerializerOptions(JsonSerializerDefaults.Web)));
@@ -34,7 +38,6 @@ app.UseSwaggerUI(c =>
 });
 
 app.UseHealthChecks("/healthz");
-
 app.MapControllers();
 
 app.Run();

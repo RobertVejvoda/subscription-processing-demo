@@ -32,9 +32,9 @@ namespace ODSService.Migrations
             modelBuilder.Entity("ODSService.Entity.Customer", b =>
                 {
                     b.Property<string>("Id")
-                        .HasMaxLength(32)
+                        .HasMaxLength(128)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(32)");
+                        .HasColumnType("varchar(128)");
 
                     b.Property<DateOnly>("BirthDate")
                         .HasColumnType("date");
@@ -98,7 +98,7 @@ namespace ODSService.Migrations
 
                     b.Property<string>("CustomerId")
                         .IsRequired()
-                        .HasColumnType("varchar(32)");
+                        .HasColumnType("varchar(128)");
 
                     b.Property<decimal>("InsuredAmount")
                         .HasPrecision(12, 2)

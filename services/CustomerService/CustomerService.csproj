@@ -15,6 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\blocks\Camunda\Camunda.csproj" />
       <ProjectReference Include="..\..\blocks\Core\Core.csproj" />
       <ProjectReference Include="..\..\blocks\HealthChecks\HealthChecks.csproj" />
     </ItemGroup>

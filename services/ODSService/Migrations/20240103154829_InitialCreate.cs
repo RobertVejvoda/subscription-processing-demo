@@ -29,7 +29,7 @@ namespace ODSService.Migrations
                 schema: "dbo",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "varchar(32)", unicode: false, maxLength: 32, nullable: false),
+                    Id = table.Column<string>(type: "varchar(128)", unicode: false, maxLength: 128, nullable: false),
                     CustomerNo = table.Column<int>(type: "int", nullable: false, defaultValueSql: "NEXT VALUE FOR CustomerNumbers"),
                     FirstName = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
@@ -62,7 +62,7 @@ namespace ODSService.Migrations
                     UnderwritingResult = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: true),
                     Message = table.Column<string>(type: "nvarchar(max)", maxLength: -1, nullable: true),
                     ProcessInstanceKey = table.Column<string>(type: "varchar(64)", unicode: false, maxLength: 64, nullable: false),
-                    CustomerId = table.Column<string>(type: "varchar(32)", nullable: false)
+                    CustomerId = table.Column<string>(type: "varchar(128)", nullable: false)
                 },
                 constraints: table =>
                 {
