@@ -1,6 +1,6 @@
 namespace CustomerExperienceAPI;
 
-public class AggregationDataContext(DbContextOptions<AggregationDataContext> options, ILoggerFactory loggerFactory)
+public class CustomerDataContext(DbContextOptions<CustomerDataContext> options, ILoggerFactory loggerFactory)
     : DbContext(options)
 {
     private const string DEFAULT_SCHEMA = "dbo";
@@ -25,8 +25,6 @@ public class AggregationDataContext(DbContextOptions<AggregationDataContext> opt
     {
         modelBuilder.HasDefaultSchema(DEFAULT_SCHEMA);
         modelBuilder.HasSequence<int>("SubscriptionRequestNumbers").StartsAt(100).IncrementsBy(1);
-        // modelBuilder.HasSequence<int>("CustomerNumbers").StartsAt(100).IncrementsBy(1);
-        // modelBuilder.HasSequence<int>("SubscriptionNumbers").StartsAt(100).IncrementsBy(1);
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AggregationDataContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(CustomerDataContext).Assembly);
     }
 }

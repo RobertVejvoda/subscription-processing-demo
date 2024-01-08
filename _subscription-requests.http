@@ -1,0 +1,64 @@
+@CustomerExperienceApi_HostAddress = http://localhost:5010
+@SubscriptionService_HostAddress = "http://localhost:5001
+@SubscriptionService_Dapr_HostAddress = "http://localhost:3601
+
+### register a new subscription request
+
+# @name registerSubscription
+POST {{CustomerExperienceApi_HostAddress}}/api/subscriptions/register
+accept: application/json
+content-type: application/json
+
+{
+  "firstName": "Homer",
+  "lastName": "Simpson",
+  "email": "homer.simpson@thesimpsons.movie",
+  "birthDate": "1976-01-06",
+  "productId": "1", 
+  "loanAmount": 200000,
+  "insuredAmount": 100000
+}
+
+### get registered subscription request by ProcessInstanceKey
+
+# @processInstanceKey = {{registerSubscription.response.body.$.processInstanceKey}}
+@processInstanceKey = 2251799814219495
+GET {{CustomerExperienceApi_HostAddress}}/api/subscriptions/{{processInstanceKey}}
+accept: application/json
+Content-Type: application/json
+
+### get all registered subscription requests
+
+GET {{CustomerExperienceApi_HostAddress}}/api/subscriptions?take=15
+accept: application/json
+context-type: application/json
+
+
+### get subscription by ID (when available after registration)
+
+@subscriptionId = "XXX"
+
+GET {{SubscriptionService_HostAddress}}/api/subscriptions/{{subscriptionId}}
+accept: application/json
+content-type: application/json
+
+### analysis - on request information accepted if stuck there
+
+POST {{SubscriptionService_HostAddress}}Api_HostAddress}}/on-subscription-accepted
+dapr-app-id: subscription-service
+accept: application/json
+content-type: application/json
+
+{
+  "firstName": "Homer",
+  "lastName": "Simpson",
+  "email": "homer.simpson@thesimpsons.movie",
+  "birthDate": "1976-01-06",
+  "productId": "1",
+  "loanAmount": 200000,
+  "insuredAmount": 100000
+}
+
+
+
+

@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace CustomerExperienceAPI.Commands;
 
 public record RegisterSubscriptionRequestCommand(

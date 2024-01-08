@@ -11,6 +11,8 @@ public class Customer : IAggregateRoot
     public DateOnly BirthDate { get; private set; }
     public CustomerState State { get; private set; }
 
+    public int Age => Core.Helpers.Calculator.CalculateAge(BirthDate);
+
     public Customer(string firstName, string lastName, DateOnly birthDate, string email)
     {
         FirstName = firstName;
@@ -45,7 +47,7 @@ public class Customer : IAggregateRoot
     }
 
     public CustomerModel ToModel() 
-        => new(Id, FirstName, LastName, BirthDate, Email, State.GetDisplayName(), DateTime.Now.Year - BirthDate.Year);
+        => new(Id, FirstName, LastName, BirthDate, Email, State.GetDisplayName(), Age);
 
     public static Customer FromModel(CustomerModel model) =>
         new(model.CustomerId, 

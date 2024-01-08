@@ -7,7 +7,7 @@ public class UnderwritingController(SubscriptionRepository repository) : Control
     // ZEEBE endpoints should start with root path /
     
     [HttpPost("/request-information")]
-    public async Task<ActionResult> RequestInformation(
+    public async Task<ActionResult<UnderwritingResult?>> RequestInformation(
         [Required] RequestInformationCommand command)
     {
         var subscription = await repository.GetAsync(command.SubscriptionId);
@@ -21,11 +21,11 @@ public class UnderwritingController(SubscriptionRepository repository) : Control
 
         await repository.AddAsync(subscription);
 
-        return Ok();
+        return Ok(subscription.UnderwritingResult);
     }
 
     [HttpPost("/on-information-received")]
-    public async Task<ActionResult> InformationReceived(InformationReceivedCommand command)
+    public async Task<ActionResult<UnderwritingResult?>> InformationReceived(InformationReceivedCommand command)
     {
         var subscription = await repository.GetAsync(command.SubscriptionId);
         if (subscription == null)
@@ -35,6 +35,6 @@ public class UnderwritingController(SubscriptionRepository repository) : Control
 
         await repository.AddAsync(subscription);
 
-        return Ok();
+        return Ok(subscription.UnderwritingResult);
     }
 }

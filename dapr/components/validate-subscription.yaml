@@ -20,7 +20,7 @@ spec:
     - name: requestTimeout
       value: "15s"
     - name: jobType
-      value: "validate"
+      value: "validate-subscription"
     - name: maxJobsActive
       value: "32"
     - name: concurrency

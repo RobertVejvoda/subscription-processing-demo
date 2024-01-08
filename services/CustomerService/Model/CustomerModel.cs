@@ -7,4 +7,4 @@ public record CustomerModel(
     [Required] DateOnly BirthDate,
     [Required] string Email,
     [Required] string CustomerState,
-    [Required] int Age);
+    int? Age);

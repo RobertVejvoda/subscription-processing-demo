@@ -1,5 +1,3 @@
-using Camunda.Abstractions;
-using Camunda.Command;
 using Dapr.Client;
 
 namespace CustomerService.Controllers;
@@ -8,8 +6,6 @@ namespace CustomerService.Controllers;
 [Route("/api/customers")]
 public class CustomerController(ILogger<CustomerController> logger) : ControllerBase
 {
-    private const string BpmnProcessId = "register-customer-process_1434vxu";
-    
     [HttpGet("{customerId}")]
     public async Task<ActionResult<CustomerModel>> GetCustomer(
         [Required, FromRoute] string customerId, 
@@ -22,17 +18,6 @@ public class CustomerController(ILogger<CustomerController> logger) : Controller
         }
 
         return Ok(customer.ToModel());
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<string>> Register(
-        [Required, FromBody] RegisterCustomerCommand command,
-        [FromServices] IZeebeClient zeebeClient)
-    {
-        var request = new CreateInstanceRequest(BpmnProcessId, null, null, command);
-        var response = await zeebeClient.CreateInstanceAsync(request);
-
-        return Ok(new { ProcessInstanceKey = response.ProcessInstanceKey.ToString() });
     }
     
     // ZEEBE endpoints should start with root path /

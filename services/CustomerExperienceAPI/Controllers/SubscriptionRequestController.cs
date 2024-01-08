@@ -1,17 +1,8 @@
-using System.ComponentModel.DataAnnotations;
-using Camunda.Abstractions;
-using Camunda.Command;
-using CustomerExperienceAPI.Commands;
-using Microsoft.AspNetCore.Mvc;
-
 namespace CustomerExperienceAPI.Controllers;
 
 [ApiController]
 [Route("/api/subscriptions")]
-public class SubscriptionRequestController(
-    AggregationDataContext dataContext,
-    Queries.Queries queries,
-    IDateTimeProvider dateTimeProvider)
+public class SubscriptionRequestController(CustomerDataContext dataContext, Queries.Queries queries, IDateTimeProvider dateTimeProvider)
     : ControllerBase
 {
     private const string BpmnProcessId = "Subscription_Process_Workflow";
@@ -32,8 +23,8 @@ public class SubscriptionRequestController(
         return Ok(result);
     }
 
-    [HttpPost("/register")]
-    public async Task<ActionResult> RegisterSubscription(
+    [HttpPost("register")]
+    public async Task<ActionResult<ProcessInstanceKeyModel>> RegisterSubscription(
         [Required] RegisterSubscriptionRequestCommand command,
         [FromServices] IZeebeClient zeebeClient)
     {
@@ -44,7 +35,7 @@ public class SubscriptionRequestController(
             new CreateInstanceRequest(BpmnProcessId, null, null, command));
         
         // save request
-        var customer = new SubscriptionRequestEntity
+        var subscriptionRequest = new SubscriptionRequestEntity
         {
             FirstName = command.FirstName,
             LastName = command.LastName,
@@ -55,75 +46,11 @@ public class SubscriptionRequestController(
             LastUpdatedOn = receivedOn,
             ReceivedOn = receivedOn,
             ProductId = command.ProductId,
-            ProcessInstanceKey = response.ProcessInstanceKey.ToString()!
+            ProcessInstanceKey = response.ProcessInstanceKey.ToString()
         };
-        await dataContext.AddAsync(customer);
-
-        return Ok(new { ProcessInstanceKey = response.ProcessInstanceKey.ToString() });
-    }
-    
-    // ZEEBE endpoints should start with root path /
-    
-    [HttpPost("/subscription-registered")]
-    public async Task<ActionResult> OnSubscriptionRegistered(SubscriptionRegisteredCommand command)
-    {
-        var subscription = await dataContext.FindAsync<SubscriptionRequestEntity>(command.ProcessInstanceKey);
-        if (subscription == null)
-            return NotFound();
-
-        subscription.SubscriptionState = command.SubscriptionState;
-        subscription.LastUpdatedOn = dateTimeProvider.Now();
-
+        await dataContext.AddAsync(subscriptionRequest);
         await dataContext.SaveChangesAsync();
-        
-        return Ok();
+
+        return Ok(new ProcessInstanceKeyModel(response.ProcessInstanceKey.ToString()));
     }
-    
-    [HttpPost("/subscription-accepted")]
-    public async Task<ActionResult> AcceptSubscription(SubscriptionAcceptedCommand command)
-    {
-        var subscription = await dataContext.FindAsync<SubscriptionRequestEntity>(command.ProcessInstanceKey);
-        if (subscription == null)
-            return NotFound();
-
-        subscription.SubscriptionState = command.SubscriptionState;
-        subscription.UnderwritingResultMessage = command.Reason;
-        subscription.LastUpdatedOn = dateTimeProvider.Now();
-
-        await dataContext.SaveChangesAsync();
-        
-        return Ok();
-    }
-
-    [HttpPost("/subscription-rejected")]
-    public async Task<ActionResult> OnSubscriptionRejected(SubscriptionRejectedCommand command)
-    {
-        var subscription = await dataContext.FindAsync<SubscriptionRequestEntity>(command.ProcessInstanceKey);
-        if (subscription == null)
-            return NotFound();
-
-        subscription.SubscriptionState = command.SubscriptionState;
-        subscription.UnderwritingResultMessage = command.Reason;
-        subscription.LastUpdatedOn = dateTimeProvider.Now();
-
-        await dataContext.SaveChangesAsync();
-        
-        return Ok();
-    }
-    
-    [HttpPost("/subscription-suspended")]
-    public async Task<ActionResult> OnSubscriptionSuspended(SubscriptionSuspendedCommand command)
-    {
-        var subscription = await dataContext.FindAsync<SubscriptionRequestEntity>(command.ProcessInstanceKey);
-        if (subscription == null)
-            return NotFound();
-
-        subscription.SubscriptionState = command.SubscriptionState;
-        subscription.UnderwritingResultMessage = command.Reason;
-        subscription.LastUpdatedOn = dateTimeProvider.Now();
-
-        await dataContext.SaveChangesAsync();
-        
-        return Ok();
-    }
- }
+}

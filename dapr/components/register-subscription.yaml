@@ -20,7 +20,7 @@ spec:
     - name: requestTimeout
       value: "15s"
     - name: jobType
-      value: "register"
+      value: "register-subscription"
     - name: maxJobsActive
       value: "32"
     - name: concurrency

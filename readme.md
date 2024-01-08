@@ -139,3 +139,36 @@ where Dapr does a great job to subscribe events.
 
 Please note that it's just a demo. 
 Typically underwriting happens even before any binding offer.
+
+### Known issues
+
+<i>"cannot parse variables from binding result ; got error unexpected end of JSON input"</i>
+
+... is caused by method not providing any response.
+
+Example:
+
+```
+[HttpPost("/subscription-registered")]
+public async Task<ActionResult> OnSubscriptionRegistered(
+    [Required] SubscriptionRegisteredCommand command)
+{
+    var subscription = await dataContext.FindAsync<SubscriptionRequestEntity>(command.ProcessInstanceKey);
+    if (subscription == null)
+        return NotFound();
+
+    subscription.SubscriptionId = command.SubscriptionId;
+    subscription.SubscriptionState = command.SubscriptionState;
+    subscription.LastUpdatedOn = dateTimeProvider.Now();
+
+    await dataContext.SaveChangesAsync();
+    
+    return Ok();   // <-- issue
+}
+```
+
+The fix is easy, just return something like 
+
+```
+return Ok(new { subscription.SubscriptionId, subscription.LastUpdatedOn });
+```

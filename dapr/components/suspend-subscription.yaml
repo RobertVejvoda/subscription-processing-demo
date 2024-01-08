@@ -20,7 +20,7 @@ spec:
     - name: requestTimeout
       value: "15s"
     - name: jobType
-      value: "suspend"
+      value: "suspend-subscription"
     - name: maxJobsActive
       value: "32"
     - name: concurrency

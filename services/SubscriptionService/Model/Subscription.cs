@@ -139,5 +139,5 @@ public class Subscription : IAggregateRoot
             new Queue<SubscriptionStateHistory>(model.History),
             underwritingResult);      
         
-    } 
+    }
 }

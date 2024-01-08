@@ -1,11 +1,11 @@
+using Microsoft.OpenApi.Extensions;
+
 namespace SubscriptionService.Controllers;
 
 [ApiController]
 [Route("/api/subscriptions")]
 public class SubscriptionController(SubscriptionRepository repository) : ControllerBase
 {
-    private const string BpmnProcessId = "Subscription_Process_Workflow";
-    
     [HttpGet("{subscriptionId}")]
     public async Task<ActionResult<SubscriptionModel>> GetSubscription(string subscriptionId)
     {
@@ -20,20 +20,24 @@ public class SubscriptionController(SubscriptionRepository repository) : Control
     
     // ZEEBE endpoints should start with root path /
     
-    [HttpPost("/register")]
-    public async Task<ActionResult<SubscriptionModel>> Register(
-        [Required] RegisterSubscriptionCommand command)
+    [HttpPost("/register-subscription")]
+    public async Task<ActionResult> Register(
+        [Required] RegisterSubscriptionCommand command,
+        [Required] IHttpContextAccessor contextAccessor)
     {
+        var processInstanceKey = contextAccessor.HttpContext!.Request.Headers["X-Zeebe-Process-Instance-Key"];
+        
         // register a new subscription
         var subscription = new Subscription(command.ProductId, command.LoanAmount, command.InsuredAmount);
         subscription.Register().Normalize();
         await repository.AddAsync(subscription);
 
-        return Ok(subscription.ToModel());
+        return Ok(new { subscription.SubscriptionId, SubscriptionState = subscription.State.GetDisplayName(), 
+            ProcessInstanceKey = processInstanceKey.Single() });
     }
     
-    [HttpPost("/validate")]
-    public async Task<ActionResult<SubscriptionModel>> Validate(
+    [HttpPost("/validate-subscription")]
+    public async Task<ActionResult> Validate(
         [Required] ValidateSubscriptionCommand command,
         [FromServices] IZeebeClient zeebeClient,
         [FromServices] ProductProxyService productProxyService,
@@ -48,7 +52,7 @@ public class SubscriptionController(SubscriptionRepository repository) : Control
         await repository.AddAsync(subscription);
 
         if (validationResult.IsValid) 
-            return Ok(subscription.ToModel());
+            return Ok(new { subscription.SubscriptionId, SubscriptionState = subscription.State.GetDisplayName() });
 
         // identify current job
         var jobKey = httpContextAccessor.HttpContext?.Request.Headers["X-Zeebe-Job-Key"];
@@ -60,11 +64,11 @@ public class SubscriptionController(SubscriptionRepository repository) : Control
             "SUBSCRIPTION_INVALID", validationResult.Reason);
         await zeebeClient.ThrowErrorAsync(throwErrorRequest);
 
-        return Ok(subscription.ToModel());
+        return Ok(new { subscription.SubscriptionId, SubscriptionState = subscription.State.GetDisplayName() });
     }
     
-    [HttpPost("/accept")]
-    public async Task<ActionResult<SubscriptionModel>> Accept(
+    [HttpPost("/accept-subscription")]
+    public async Task<ActionResult> Accept(
         [Required] AcceptSubscriptionCommand command)
     {
         var subscription = await repository.GetAsync(command.SubscriptionId);
@@ -74,11 +78,11 @@ public class SubscriptionController(SubscriptionRepository repository) : Control
         subscription.Accept(command.Reason);
         await repository.AddAsync(subscription);
 
-        return Ok(subscription.ToModel());
+        return Ok(new { subscription.SubscriptionId, SubscriptionState = subscription.State.GetDisplayName() });
     }
     
-    [HttpPost("/reject")]
-    public async Task<ActionResult<SubscriptionModel>> Reject(
+    [HttpPost("/reject-subscription")]
+    public async Task<ActionResult> Reject(
         [Required] RejectSubscriptionCommand command)
     {
         var subscription = await repository.GetAsync(command.SubscriptionId);
@@ -88,11 +92,11 @@ public class SubscriptionController(SubscriptionRepository repository) : Control
         subscription.Reject(command.Reason);
         await repository.AddAsync(subscription);
 
-        return Ok(subscription.ToModel());
+        return Ok(new { subscription.SubscriptionId, SubscriptionState = subscription.State.GetDisplayName() });
     }
     
-    [HttpPost("/suspend")]
-    public async Task<ActionResult<SubscriptionModel>> Suspend(
+    [HttpPost("/suspend-subscription")]
+    public async Task<ActionResult> Suspend(
         [Required] SuspendSubscriptionCommand command)
     {
         var subscription = await repository.GetAsync(command.SubscriptionId);
@@ -102,6 +106,6 @@ public class SubscriptionController(SubscriptionRepository repository) : Control
         subscription.Suspend(command.Reason);
         await repository.AddAsync(subscription);
 
-        return Ok(subscription.ToModel());
+        return Ok(new { subscription.SubscriptionId, SubscriptionState = subscription.State.GetDisplayName() });
     }
 }

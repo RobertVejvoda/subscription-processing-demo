@@ -1,0 +1,27 @@
+@CustomerExperienceApi_HostAddress = http://localhost:5010
+@CustomerService_HostAddress = http://localhost:5002
+
+### register customer via Customer Experience API
+
+# @name registerCustomer
+POST {{CustomerExperienceApi_HostAddress}}/api/customers/register
+Accept: application/json
+Content-Type: application/json
+
+{
+  "firstName": "Homer",
+  "lastName": "Simpson",
+  "birthDate": "1976-01-06",
+  "email": "homer.simpson@thesimpsons.movie"
+}
+
+###
+
+# @customerId = {{registerCustomer.response.body.$.customerId}}
+@customerId = MTk3Ni0wMS0wNnxob21lci5zaW1wc29uQHRoZXNpbXBzb25zLm1vdmll
+
+GET {{CustomerService_HostAddress}}/api/customers/{{customerId}}
+Content-Type: application/json
+
+###
+

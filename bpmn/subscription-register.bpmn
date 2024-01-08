@@ -3,7 +3,7 @@
   <bpmn:process id="Subscription_Process_Workflow" name="subscription-register" isExecutable="true">
     <bpmn:serviceTask id="Activity_1m9a7lq" name="Accept Subscription">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="accept" retries="3" />
+        <zeebe:taskDefinition type="accept-subscription" retries="3" />
         <zeebe:ioMapping>
           <zeebe:input source="=underwritingResultMessage" target="reason" />
           <zeebe:input source="=subscriptionId" target="subscriptionId" />
@@ -31,7 +31,7 @@
     </bpmn:serviceTask>
     <bpmn:serviceTask id="Activity_170dgge" name="Reject Subscription">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="reject" retries="3" />
+        <zeebe:taskDefinition type="reject-subscription" retries="3" />
         <zeebe:ioMapping>
           <zeebe:input source="=underwritingResultMessage" target="reason" />
           <zeebe:input source="=subcriptionId" target="subscriptionId" />
@@ -47,7 +47,6 @@
           <zeebe:input source="=loanAmount" target="loanAmount" />
           <zeebe:input source="=insuredAmount" target="insuredAmount" />
           <zeebe:input source="=productId" target="productId" />
-          <zeebe:output source="=subscriptionId" target="subcriptionId" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0vx073z</bpmn:incoming>
@@ -74,14 +73,6 @@
       <bpmn:incoming>Flow_17qwr4t</bpmn:incoming>
       <bpmn:messageEventDefinition id="MessageEventDefinition_0tqxuni" />
     </bpmn:endEvent>
-    <bpmn:startEvent id="Event_0mt3kmc" name="Subscription request received">
-      <bpmn:extensionElements>
-        <zeebe:ioMapping>
-          <zeebe:output source="=processInstanceKey" target="processInstanceKey" />
-        </zeebe:ioMapping>
-      </bpmn:extensionElements>
-      <bpmn:outgoing>Flow_1tqr18m</bpmn:outgoing>
-    </bpmn:startEvent>
     <bpmn:callActivity id="Activity_06chw5k" name="Register Customer in CRM">
       <bpmn:extensionElements>
         <zeebe:calledElement processId="register-customer-process_1434vxu" propagateAllChildVariables="false" propagateAllParentVariables="false" />
@@ -90,8 +81,8 @@
           <zeebe:input source="=lastName" target="lastName" />
           <zeebe:input source="=email" target="email" />
           <zeebe:input source="=birthDate" target="birthDate" />
-          <zeebe:output source="=age" target="age" />
           <zeebe:output source="=customerId" target="customerId" />
+          <zeebe:output source="=age" target="age" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0j6lh9k</bpmn:incoming>
@@ -99,7 +90,7 @@
     </bpmn:callActivity>
     <bpmn:serviceTask id="Activity_0l1ymhi" name="Validate Subscription">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="validate" retries="3" />
+        <zeebe:taskDefinition type="validate-subscription" retries="3" />
         <zeebe:ioMapping>
           <zeebe:input source="=subscriptionId" target="subscriptionId" />
           <zeebe:input source="=customerId" target="customerId" />
@@ -144,8 +135,10 @@
         <zeebe:ioMapping>
           <zeebe:input source="=age" target="age" />
           <zeebe:input source="=insuredAmount" target="insuredAmount" />
-          <zeebe:output source="=underwritingResult" target="underwritingResultState" />
-          <zeebe:output source="=message" target="underwritingResultMessage" />
+          <zeebe:input source="=subscriptionId" target="subscriptionId" />
+          <zeebe:input source="=customerId" target="customerId" />
+          <zeebe:output source="=underwritingResultState" target="underwritingResultState" />
+          <zeebe:output source="=underwritingResultMessage" target="underwritingResultMessage" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0yizuwb</bpmn:incoming>
@@ -215,7 +208,7 @@
     <bpmn:sequenceFlow id="Flow_1tqr18m" sourceRef="Event_0mt3kmc" targetRef="Gateway_1x6avf3" />
     <bpmn:intermediateThrowEvent id="Event_0msdjzt" name="Subscription Registered">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="subscrption" />
+        <zeebe:taskDefinition type="subscription-registered" />
         <zeebe:ioMapping>
           <zeebe:input source="=processInstanceKey" target="processInstanceKey" />
           <zeebe:input source="=subscriptionId" target="subscriptionId" />
@@ -228,6 +221,10 @@
     </bpmn:intermediateThrowEvent>
     <bpmn:sequenceFlow id="Flow_1ced43x" sourceRef="Gateway_10zuukj" targetRef="Event_0msdjzt" />
     <bpmn:sequenceFlow id="Flow_0kijpzf" sourceRef="Event_0msdjzt" targetRef="Activity_0l1ymhi" />
+    <bpmn:startEvent id="Event_0mt3kmc" name="Subscription request received">
+      <bpmn:extensionElements />
+      <bpmn:outgoing>Flow_1tqr18m</bpmn:outgoing>
+    </bpmn:startEvent>
     <bpmn:textAnnotation id="TextAnnotation_05rxqoq">
       <bpmn:text>State: In Analysis</bpmn:text>
     </bpmn:textAnnotation>
@@ -434,12 +431,6 @@
         <dc:Bounds x="480" y="415" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1aidnnj_di" bpmnElement="Event_0mt3kmc">
-        <dc:Bounds x="172" y="312" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="151" y="355" width="82" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_090t2sz_di" bpmnElement="Activity_06chw5k">
         <dc:Bounds x="480" y="150" width="100" height="80" />
         <bpmndi:BPMNLabel />
@@ -454,6 +445,12 @@
         <dc:Bounds x="832" y="312" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="822" y="355" width="61" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_15e9bp6_di" bpmnElement="Event_0mt3kmc">
+        <dc:Bounds x="172" y="312" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="151" y="355" width="82" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_14je0t0_di" bpmnElement="Association_14je0t0">

@@ -28,14 +28,14 @@ namespace Camunda
                 Commands.CreateInstance, request);
         }
         
-        public async Task<CreateInstanceResponse> CreateInstanceWithResultAsync(CreateInstanceWithResultRequest request)
+        public async Task<CreateInstanceWithResultResponse> CreateInstanceWithResultAsync(CreateInstanceWithResultRequest request)
         {
             if (request.BpmnProcessId == null)
             {
                 throw new ArgumentException("Set bpmnProcessId.");
             }
 
-            return await daprClient.InvokeBindingAsync<CreateInstanceWithResultRequest, CreateInstanceResponse>(ZeebeCommand,
+            return await daprClient.InvokeBindingAsync<CreateInstanceWithResultRequest, CreateInstanceWithResultResponse>(ZeebeCommand,
                 Commands.CreateInstance, request);
         }
 

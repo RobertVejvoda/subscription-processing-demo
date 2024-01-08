@@ -85,7 +85,7 @@ services:
   customer-experice-api-dapr:
     container_name: customer-experience-api-dapr
     image: daprio/daprd:1.12.0
-    network_mode: "service:ods-service"
+    network_mode: "service:customer-experience-api"
     command: [ "./daprd",
                "-app-id", "customer-experience-api",
                "-dapr-http-port", "3500",

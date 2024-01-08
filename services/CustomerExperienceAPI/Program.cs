@@ -1,5 +1,4 @@
 using Camunda;
-using Camunda.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,13 +11,13 @@ builder.Services.AddControllers()
     .AddDapr(client => client.UseJsonSerializationOptions(new JsonSerializerOptions(JsonSerializerDefaults.Web)));
 
 builder.Services.AddHealthChecks()
-    .AddDbContextCheck<AggregationDataContext>()
+    .AddDbContextCheck<CustomerDataContext>()
     .AddCheck("self", () => HealthCheckResult.Healthy())
     .AddDapr();
 
-builder.Services.AddDbContext<AggregationDataContext>(
+builder.Services.AddDbContext<CustomerDataContext>(
     options => options
-        .UseSqlServer(builder.Configuration.GetConnectionString("ODSDataMartConnectionString"))
+        .UseSqlServer(builder.Configuration.GetConnectionString("CustomerDataStore"))
         .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking))
         .AddHealthChecks();
 
@@ -34,7 +33,7 @@ app.UseSwagger();
 // Enable middleware to serve swagger-ui (HTML, JS, CSS etc.), specifying the Swagger JSON endpoint.
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "ODS API - v1");
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Customer Experience API - v1");
     c.RoutePrefix = string.Empty;
 });
 

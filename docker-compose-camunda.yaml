@@ -57,6 +57,7 @@ services:
       timeout: 1s
       retries: 5
       start_period: 30s
+    restart: unless-stopped
     networks:
       - camunda-platform
     depends_on:
@@ -80,6 +81,7 @@ services:
       timeout: 1s
       retries: 5
       start_period: 30s
+    restart: unless-stopped
     networks:
       - camunda-platform
     depends_on:
@@ -99,6 +101,7 @@ services:
       - CAMUNDA_OPERATE_CLIENT_PASSWORD=demo
       - management.endpoints.web.exposure.include=health
       - management.endpoint.health.probes.enabled=true
+    restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:8080/actuator/health/readiness" ]
       interval: 30s

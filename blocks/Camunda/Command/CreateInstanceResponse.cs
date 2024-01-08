@@ -1,8 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Camunda.Command
 {
     public record CreateInstanceResponse(
-        long? ProcessDefinitionKey,
-        string BpmnProcessId,
-        int? Version,
-        long? ProcessInstanceKey);
+        [Required] long ProcessDefinitionKey,
+        [Required] string BpmnProcessId,
+        [Required] int Version,
+        [Required] long ProcessInstanceKey);
 }

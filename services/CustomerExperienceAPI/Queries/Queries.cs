@@ -1,6 +1,6 @@
 namespace CustomerExperienceAPI.Queries;
 
-public class Queries(AggregationDataContext context)
+public class Queries(CustomerDataContext context)
 {
     public async Task<ICollection<SubscriptionRequestModel>> GetSubscriptionRequests(int? limit = 15)
     {

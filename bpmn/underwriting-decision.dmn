@@ -1,20 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:modeler="http://camunda.org/schema/modeler/1.0" xmlns:biodi="http://bpmn.io/schema/dmn/biodi/2.0" xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/" id="Definitions_0tqtqu6" name="DRD" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="5.18.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.3.0">
-  <decision id="underwriting-decision" name="Underwriting Decision">
+  <decision id="underwriting_decision" name="Underwriting Decision">
     <informationRequirement id="InformationRequirement_12vmz7m">
-      <requiredDecision href="#risk-decision" />
+      <requiredDecision href="#risk_decision" />
     </informationRequirement>
-    <decisionTable id="DecisionTable_0c2zt8q">
+    <informationRequirement id="InformationRequirement_01htjd3">
+      <requiredInput href="#InputData_1nh1all" />
+    </informationRequirement>
+    <decisionTable id="DecisionTable_0c2zt8q" hitPolicy="FIRST">
       <input id="Input_1" label="Risk">
         <inputExpression id="InputExpression_1" typeRef="number">
-          <text>riskDecision</text>
+          <text>risk_decision</text>
+        </inputExpression>
+      </input>
+      <input id="InputClause_0b9cdcu" label="Medical Assessment Result" biodi:width="229">
+        <inputExpression id="LiteralExpression_1cesovt" typeRef="boolean">
+          <text>medicalAssessmentResult</text>
         </inputExpression>
       </input>
       <output id="Output_1" label="Underwriting Result" name="underwritingResult" typeRef="string" />
-      <output id="OutputClause_164s3cx" label="Message to customer" name="message" typeRef="string" />
+      <output id="OutputClause_164s3cx" label="Message to customer" name="message" typeRef="string" biodi:width="402" />
       <rule id="DecisionRule_10tv9n5">
+        <description>Auto accept</description>
         <inputEntry id="UnaryTests_0sif67n">
-          <text>&lt; 0.5</text>
+          <text>&lt; 0.7</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_16f1o8r">
+          <text></text>
         </inputEntry>
         <outputEntry id="LiteralExpression_1bcvb2y">
           <text>"Accepted"</text>
@@ -23,9 +35,43 @@
           <text>"We're pleased to announce that you've passed our medical assessment."</text>
         </outputEntry>
       </rule>
+      <rule id="DecisionRule_19eb601">
+        <description>Manually override the risk</description>
+        <inputEntry id="UnaryTests_1mei6n3">
+          <text>[0.7..1[</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1vcqukv">
+          <text>true</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0jdkuqv">
+          <text>"Accepted"</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_0obkefd">
+          <text>"After reviewing your case we're pleased to announce you, that your request was accepted."</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_10v3wuv">
+        <description>Manually override the risk</description>
+        <inputEntry id="UnaryTests_0ioszp0">
+          <text>[0.7..1[</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0zwb8y7">
+          <text>false</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0kwiy4f">
+          <text>"Rejected"</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_1bomsd5">
+          <text>"I'm sorry but after reviewing your case we've decided not to accept your subscription."</text>
+        </outputEntry>
+      </rule>
       <rule id="DecisionRule_1g48a0q">
+        <description>Must be reviewed by humans (or AI).</description>
         <inputEntry id="UnaryTests_0d1xyd0">
-          <text>[0.5..1[</text>
+          <text>[0.7..1[</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1xm2lne">
+          <text></text>
         </inputEntry>
         <outputEntry id="LiteralExpression_0dxho4r">
           <text>"Pending"</text>
@@ -34,22 +80,41 @@
           <text>"Please enter medical examination with our doctor."</text>
         </outputEntry>
       </rule>
-      <rule id="DecisionRule_170g0o1">
-        <inputEntry id="UnaryTests_0yc3vtd">
-          <text>1</text>
+      <rule id="DecisionRule_0agwhvn">
+        <description>Rejected after reviewing medical case</description>
+        <inputEntry id="UnaryTests_1l0e8yk">
+          <text></text>
         </inputEntry>
-        <outputEntry id="LiteralExpression_06ltfnn">
+        <inputEntry id="UnaryTests_1gwgogc">
+          <text>"false"</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1hta3g9">
           <text>"Rejected"</text>
         </outputEntry>
-        <outputEntry id="LiteralExpression_07mnv9k">
-          <text>"We're sorry, but can't accept your request."</text>
+        <outputEntry id="LiteralExpression_0k498gc">
+          <text>"I'm sorry but after revieving your case we can't accept your subscription."</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1owv7md">
+        <description>Rejected</description>
+        <inputEntry id="UnaryTests_1xo49n2">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_19ylqx5">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_12g8fs3">
+          <text>"Rejected"</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_12rv1bc">
+          <text>"I'm sorry we can't accept your subscription."</text>
         </outputEntry>
       </rule>
     </decisionTable>
   </decision>
   <inputData id="InputData_13om5v0" name="Age" />
   <inputData id="InputData_061kxjf" name="Insured Amount" />
-  <decision id="risk-decision" name="Decide Risk">
+  <decision id="risk_decision" name="Risk Decision">
     <informationRequirement id="InformationRequirement_0gxmjcm">
       <requiredInput href="#InputData_13om5v0" />
     </informationRequirement>
@@ -67,7 +132,7 @@
           <text>insuredAmount</text>
         </inputExpression>
       </input>
-      <output id="OutputClause_0w4mvb2" label="Risk" name="riskDecision" typeRef="number" biodi:width="192" />
+      <output id="OutputClause_0w4mvb2" label="Risk" name="risk" typeRef="number" biodi:width="192" />
       <rule id="DecisionRule_0k728so">
         <description>High risk</description>
         <inputEntry id="UnaryTests_0hn7tgv">
@@ -101,7 +166,7 @@
           <text>&lt; 200000</text>
         </inputEntry>
         <outputEntry id="LiteralExpression_1hgsfsk">
-          <text>0.5</text>
+          <text>0.7</text>
         </outputEntry>
       </rule>
       <rule id="DecisionRule_1k55s71">
@@ -130,9 +195,10 @@
       </rule>
     </decisionTable>
   </decision>
+  <inputData id="InputData_1nh1all" name="Medical assessment" />
   <dmndi:DMNDI>
     <dmndi:DMNDiagram>
-      <dmndi:DMNShape dmnElementRef="underwriting-decision">
+      <dmndi:DMNShape dmnElementRef="underwriting_decision">
         <dc:Bounds height="80" width="180" x="240" y="80" />
       </dmndi:DMNShape>
       <dmndi:DMNShape id="DMNShape_1rwzgb7" dmnElementRef="InputData_13om5v0">
@@ -151,13 +217,21 @@
         <di:waypoint x="360" y="330" />
         <di:waypoint x="360" y="310" />
       </dmndi:DMNEdge>
-      <dmndi:DMNShape id="DMNShape_1onpphy" dmnElementRef="risk-decision">
+      <dmndi:DMNShape id="DMNShape_1onpphy" dmnElementRef="risk_decision">
         <dc:Bounds height="80" width="180" x="240" y="230" />
       </dmndi:DMNShape>
       <dmndi:DMNEdge id="DMNEdge_1sj1g2o" dmnElementRef="InformationRequirement_12vmz7m">
         <di:waypoint x="330" y="230" />
         <di:waypoint x="330" y="180" />
         <di:waypoint x="330" y="160" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNShape id="DMNShape_16d90eb" dmnElementRef="InputData_1nh1all">
+        <dc:Bounds height="45" width="125" x="557" y="97" />
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="DMNEdge_1sgze51" dmnElementRef="InformationRequirement_01htjd3">
+        <di:waypoint x="557" y="120" />
+        <di:waypoint x="440" y="120" />
+        <di:waypoint x="420" y="120" />
       </dmndi:DMNEdge>
     </dmndi:DMNDiagram>
   </dmndi:DMNDI>

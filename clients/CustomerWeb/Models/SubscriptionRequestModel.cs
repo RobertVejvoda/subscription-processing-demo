@@ -16,5 +16,5 @@ public class SubscriptionRequestModel
     public required DateTime ReceivedOn  { get; init; }
     public required DateTime LastUpdatedOn { get; init; }
     
-    public int Age => DateTime.Now.Year - BirthDate.Year;
+    public int Age => Calculator.CalculateAge(BirthDate);
 }
