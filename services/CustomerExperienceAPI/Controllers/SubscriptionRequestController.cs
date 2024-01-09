@@ -8,7 +8,7 @@ public class SubscriptionRequestController(CustomerDataContext dataContext, Quer
     private const string BpmnProcessId = "Subscription_Process_Workflow";
     
     [HttpGet]
-    public async Task<ActionResult<ICollection<SubscriptionRequestModel>>> GetSubscriptions([FromQuery] int take = 15)
+    public async Task<ActionResult<ICollection<SubscriptionRequestModel>>> GetSubscriptionRequests([FromQuery] int take = 15)
     {
         return Ok(await queries.GetSubscriptionRequests(take));
     }

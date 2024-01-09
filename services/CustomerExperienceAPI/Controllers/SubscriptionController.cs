@@ -17,13 +17,14 @@ public class SubscriptionController(
         if (subscription == null)
             return NotFound();
 
+        subscription.CustomerId = command.CustomerId;
         subscription.SubscriptionId = command.SubscriptionId;
         subscription.SubscriptionState = command.SubscriptionState;
         subscription.LastUpdatedOn = dateTimeProvider.Now();
 
         await dataContext.SaveChangesAsync();
         
-        return Ok(new { subscription.SubscriptionId, subscription.LastUpdatedOn });
+        return Ok(new { subscription.SubscriptionId, subscription.SubscriptionState });
     }
     
     [HttpPost("/subscription-accepted")]
@@ -40,7 +41,7 @@ public class SubscriptionController(
 
         await dataContext.SaveChangesAsync();
         
-        return Ok(new { subscription.SubscriptionId, subscription.LastUpdatedOn });
+        return Ok(new { subscription.SubscriptionId, subscription.SubscriptionState });
     }
 
     [HttpPost("/subscription-rejected")]
@@ -57,7 +58,7 @@ public class SubscriptionController(
 
         await dataContext.SaveChangesAsync();
         
-        return Ok(new { subscription.SubscriptionId, subscription.LastUpdatedOn });
+        return Ok(new { subscription.SubscriptionId, subscription.SubscriptionState });
     }
     
     [HttpPost("/subscription-suspended")]
@@ -74,6 +75,6 @@ public class SubscriptionController(
 
         await dataContext.SaveChangesAsync();
         
-        return Ok(new { subscription.SubscriptionId, subscription.LastUpdatedOn });
+        return Ok(new { subscription.SubscriptionId, subscription.SubscriptionState });
     }
  }

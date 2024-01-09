@@ -17,8 +17,7 @@ builder.Services.AddHealthChecks()
 
 builder.Services.AddDbContext<CustomerDataContext>(
     options => options
-        .UseSqlServer(builder.Configuration.GetConnectionString("CustomerDataStore"))
-        .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking))
+        .UseSqlServer(builder.Configuration.GetConnectionString("CustomerDataStore")))
         .AddHealthChecks();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

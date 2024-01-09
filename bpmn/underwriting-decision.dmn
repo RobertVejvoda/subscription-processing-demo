@@ -20,6 +20,20 @@
       </input>
       <output id="Output_1" label="Underwriting Result" name="underwritingResult" typeRef="string" />
       <output id="OutputClause_164s3cx" label="Message to customer" name="message" typeRef="string" biodi:width="402" />
+      <rule id="DecisionRule_0129ofc">
+        <inputEntry id="UnaryTests_11h15yc">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_11lmcnr">
+          <text>true</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0j5ernn">
+          <text>"Accepted"</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_093wp05">
+          <text>"We're pleased to announce that you've passed our medical assessment."</text>
+        </outputEntry>
+      </rule>
       <rule id="DecisionRule_10tv9n5">
         <description>Auto accept</description>
         <inputEntry id="UnaryTests_0sif67n">
@@ -33,21 +47,6 @@
         </outputEntry>
         <outputEntry id="LiteralExpression_1ku440v">
           <text>"We're pleased to announce that you've passed our medical assessment."</text>
-        </outputEntry>
-      </rule>
-      <rule id="DecisionRule_19eb601">
-        <description>Manually override the risk</description>
-        <inputEntry id="UnaryTests_1mei6n3">
-          <text>[0.7..1[</text>
-        </inputEntry>
-        <inputEntry id="UnaryTests_1vcqukv">
-          <text>true</text>
-        </inputEntry>
-        <outputEntry id="LiteralExpression_0jdkuqv">
-          <text>"Accepted"</text>
-        </outputEntry>
-        <outputEntry id="LiteralExpression_0obkefd">
-          <text>"After reviewing your case we're pleased to announce you, that your request was accepted."</text>
         </outputEntry>
       </rule>
       <rule id="DecisionRule_10v3wuv">
@@ -86,7 +85,7 @@
           <text></text>
         </inputEntry>
         <inputEntry id="UnaryTests_1gwgogc">
-          <text>"false"</text>
+          <text>false</text>
         </inputEntry>
         <outputEntry id="LiteralExpression_1hta3g9">
           <text>"Rejected"</text>

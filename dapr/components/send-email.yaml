@@ -2,7 +2,7 @@
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: email
+  name: send-email
 spec:
   type: bindings.smtp
   version: v1

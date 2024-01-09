@@ -50,7 +50,7 @@ public class SubscriptionController(SubscriptionRepository repository) : Control
         subscription.CustomerId = command.CustomerId;
         var validationResult = subscription.Validate(productProxyService);
         await repository.AddAsync(subscription);
-
+        
         if (validationResult.IsValid) 
             return Ok(new { subscription.SubscriptionId, SubscriptionState = subscription.State.GetDisplayName() });
 
@@ -64,7 +64,12 @@ public class SubscriptionController(SubscriptionRepository repository) : Control
             "SUBSCRIPTION_INVALID", validationResult.Reason);
         await zeebeClient.ThrowErrorAsync(throwErrorRequest);
 
-        return Ok(new { subscription.SubscriptionId, SubscriptionState = subscription.State.GetDisplayName() });
+        return Ok(
+            new { 
+                subscription.SubscriptionId, 
+                SubscriptionState = subscription.State.GetDisplayName(),
+                validationResult.Reason
+        });
     }
     
     [HttpPost("/accept-subscription")]

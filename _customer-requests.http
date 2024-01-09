@@ -18,10 +18,9 @@ Content-Type: application/json
 ###
 
 # @customerId = {{registerCustomer.response.body.$.customerId}}
-@customerId = MTk3Ni0wMS0wNnxob21lci5zaW1wc29uQHRoZXNpbXBzb25zLm1vdmll
+@customerId = MjAwMC0wMS0wMXxiYXJ0QHNpbXBzb24uY29t
 
 GET {{CustomerService_HostAddress}}/api/customers/{{customerId}}
 Content-Type: application/json
 
 ###
-

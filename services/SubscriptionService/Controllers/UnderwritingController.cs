@@ -7,7 +7,7 @@ public class UnderwritingController(SubscriptionRepository repository) : Control
     // ZEEBE endpoints should start with root path /
     
     [HttpPost("/request-information")]
-    public async Task<ActionResult<UnderwritingResult?>> RequestInformation(
+    public async Task<ActionResult> RequestInformation(
         [Required] RequestInformationCommand command)
     {
         var subscription = await repository.GetAsync(command.SubscriptionId);
@@ -21,11 +21,11 @@ public class UnderwritingController(SubscriptionRepository repository) : Control
 
         await repository.AddAsync(subscription);
 
-        return Ok(subscription.UnderwritingResult);
+        return Ok(new { subscription.SubscriptionId });
     }
 
     [HttpPost("/on-information-received")]
-    public async Task<ActionResult<UnderwritingResult?>> InformationReceived(InformationReceivedCommand command)
+    public async Task<ActionResult> InformationReceived(InformationReceivedCommand command)
     {
         var subscription = await repository.GetAsync(command.SubscriptionId);
         if (subscription == null)
@@ -35,6 +35,10 @@ public class UnderwritingController(SubscriptionRepository repository) : Control
 
         await repository.AddAsync(subscription);
 
-        return Ok(subscription.UnderwritingResult);
+        return Ok(new { subscription.SubscriptionId });
     }
+
+    [HttpPost("/calculate-age")]
+    public ActionResult<int> CalculateAge([Required] CalculateAgeCommand command)
+        => Ok(new { Age = Calculator.CalculateAge(command.BirthDate) });
 }

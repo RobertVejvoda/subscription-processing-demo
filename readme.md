@@ -148,7 +148,7 @@ Typically underwriting happens even before any binding offer.
 
 Example:
 
-```
+```csharp
 [HttpPost("/subscription-registered")]
 public async Task<ActionResult> OnSubscriptionRegistered(
     [Required] SubscriptionRegisteredCommand command)
@@ -169,6 +169,20 @@ public async Task<ActionResult> OnSubscriptionRegistered(
 
 The fix is easy, just return something like 
 
-```
+```csharp
 return Ok(new { subscription.SubscriptionId, subscription.LastUpdatedOn });
+```
+
+<i>cannot parse variables from binding result 48; got error json: cannot unmarshal number into Go value of type map[string]interface {}</i>
+
+```csharp
+public ActionResult<int> CalculateAge([Required] CalculateAgeCommand command)
+        => Ok(Calculator.CalculateAge(command.BirthDate));
+```
+
+The fix is easy, just return object
+
+```csharp
+public ActionResult<int> CalculateAge([Required] CalculateAgeCommand command)
+        => Ok(new { Age = Calculator.CalculateAge(command.BirthDate) });
 ```

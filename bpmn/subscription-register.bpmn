@@ -34,7 +34,7 @@
         <zeebe:taskDefinition type="reject-subscription" retries="3" />
         <zeebe:ioMapping>
           <zeebe:input source="=underwritingResultMessage" target="reason" />
-          <zeebe:input source="=subcriptionId" target="subscriptionId" />
+          <zeebe:input source="=subscriptionId" target="subscriptionId" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0r49jy6</bpmn:incoming>
@@ -53,11 +53,11 @@
       <bpmn:outgoing>Flow_1f3zjhv</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_0pk7kfk" sourceRef="Gateway_1nohqiy" targetRef="Activity_1m9a7lq">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=underwritingResultState="accepted"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=underwritingResultState="Accepted"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1fu2wt3" sourceRef="Activity_1m9a7lq" targetRef="Activity_0fyfba4" />
     <bpmn:sequenceFlow id="Flow_0r49jy6" sourceRef="Gateway_1nohqiy" targetRef="Activity_170dgge">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=underwritingResultState="rejected"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=underwritingResultState="Rejected"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1ny03ey" sourceRef="Activity_170dgge" targetRef="Activity_0i05glp" />
     <bpmn:endEvent id="Event_1w2f5cn" name="Subscription Accepted">
@@ -82,7 +82,6 @@
           <zeebe:input source="=email" target="email" />
           <zeebe:input source="=birthDate" target="birthDate" />
           <zeebe:output source="=customerId" target="customerId" />
-          <zeebe:output source="=age" target="age" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0j6lh9k</bpmn:incoming>
@@ -100,6 +99,11 @@
       <bpmn:outgoing>Flow_0yizuwb</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:boundaryEvent id="Event_1hltdig" name="Invalid subscription request" attachedToRef="Activity_0l1ymhi">
+      <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:output source="=reason" target="underwritingResultMessage" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
       <bpmn:outgoing>Flow_01tg4oc</bpmn:outgoing>
       <bpmn:errorEventDefinition id="ErrorEventDefinition_10vom5e" errorRef="Error_0vkligc" />
     </bpmn:boundaryEvent>
@@ -133,7 +137,7 @@
       <bpmn:extensionElements>
         <zeebe:calledElement processId="subscripion_analysis_process_1gvb6cf" propagateAllChildVariables="false" propagateAllParentVariables="false" />
         <zeebe:ioMapping>
-          <zeebe:input source="=age" target="age" />
+          <zeebe:input source="=birthDate" target="birthDate" />
           <zeebe:input source="=insuredAmount" target="insuredAmount" />
           <zeebe:input source="=subscriptionId" target="subscriptionId" />
           <zeebe:input source="=customerId" target="customerId" />
@@ -146,10 +150,15 @@
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_0yizuwb" sourceRef="Activity_0l1ymhi" targetRef="Activity_13luz3a" />
     <bpmn:sequenceFlow id="Flow_0rs1xmu" sourceRef="Activity_13luz3a" targetRef="Gateway_1nohqiy" />
-    <bpmn:boundaryEvent id="Event_1dt611m" name="7 days" attachedToRef="Activity_13luz3a">
+    <bpmn:boundaryEvent id="Event_1dt611m" name="3 minutes (demo)" attachedToRef="Activity_13luz3a">
+      <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:output source="=&#34;Subscription is now suspended. Please contact our support.&#34;" target="underwritingResultMessage" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
       <bpmn:outgoing>Flow_0it6isn</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_02lcgw4">
-        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">P7D</bpmn:timeDuration>
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT3M</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
     <bpmn:sequenceFlow id="Flow_0it6isn" sourceRef="Event_1dt611m" targetRef="Activity_0srcazy" />
@@ -384,10 +393,6 @@
           <dc:Bounds x="1432" y="256" width="76" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1q93s12_di" bpmnElement="Activity_0srcazy">
-        <dc:Bounds x="1020" y="500" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0t1bqrd_di" bpmnElement="Activity_170dgge">
         <dc:Bounds x="1610" y="490" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -453,13 +458,13 @@
           <dc:Bounds x="151" y="355" width="82" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1q93s12_di" bpmnElement="Activity_0srcazy">
+        <dc:Bounds x="1020" y="490" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_14je0t0_di" bpmnElement="Association_14je0t0">
         <di:waypoint x="1244" y="290" />
         <di:waypoint x="1234" y="264" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Association_1x7w7xy_di" bpmnElement="Association_1x7w7xy">
-        <di:waypoint x="1020" y="510" />
-        <di:waypoint x="988" y="490" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Association_0tn7zmk_di" bpmnElement="Association_0tn7zmk">
         <di:waypoint x="1637" y="490" />
@@ -517,10 +522,14 @@
         <di:waypoint x="1288" y="290" />
         <di:waypoint x="1342" y="213" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_1x7w7xy_di" bpmnElement="Association_1x7w7xy">
+        <di:waypoint x="1020" y="504" />
+        <di:waypoint x="993" y="490" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_1fuwlvn_di" bpmnElement="Event_1dt611m">
         <dc:Bounds x="1292" y="352" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1338" y="363" width="33" height="14" />
+          <dc:Bounds x="1327" y="393" width="86" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0k2x6z9_di" bpmnElement="Event_1hltdig">
@@ -548,15 +557,15 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_01tg4oc_di" bpmnElement="Flow_01tg4oc">
         <di:waypoint x="1070" y="388" />
-        <di:waypoint x="1070" y="500" />
+        <di:waypoint x="1070" y="490" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0it6isn_di" bpmnElement="Flow_0it6isn">
         <di:waypoint x="1310" y="388" />
-        <di:waypoint x="1310" y="540" />
-        <di:waypoint x="1120" y="540" />
+        <di:waypoint x="1310" y="530" />
+        <di:waypoint x="1120" y="530" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0y4b334_di" bpmnElement="Flow_0y4b334">
-        <di:waypoint x="1070" y="580" />
+        <di:waypoint x="1070" y="570" />
         <di:waypoint x="1070" y="660" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1ny03ey_di" bpmnElement="Flow_1ny03ey">

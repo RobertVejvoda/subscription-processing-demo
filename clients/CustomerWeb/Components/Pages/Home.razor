@@ -4,9 +4,9 @@
 @inject ICustomerExperienceApi AggregationServiceApi;
 @attribute [StreamRendering]
 
-<PageTitle>Subscriptions</PageTitle>
+<PageTitle>Subscription Requests</PageTitle>
 
-<h1>Subscriptions</h1>
+<h1>Subscription Requests</h1>
 
 @if (loading)
 {
@@ -21,7 +21,7 @@ else
         <table class="table">
             <thead>
             <tr>
-                <th>Key</th>
+                <th>Process Instance Key</th>
                 <th>Subscription ID</th>
                 <th>Customer ID</th>
                 <th>First Name</th>
@@ -39,16 +39,16 @@ else
             {
                 <tr>
                     <td>@subscription.ProcessInstanceKey</td>
-                    <td>@subscription.SubscriptionId ?? "N/A"</td>
-                    <td>@subscription.CustomerId ?? "N/A"</td>
+                    <td>@subscription.SubscriptionId?[..12]</td>
+                    <td>@subscription.CustomerId?[..12]</td>
                     <td>@subscription.FirstName</td>
                     <td>@subscription.LastName</td>
                     <td>@subscription.Email</td>
-                    <td>@subscription.SubscriptionState ?? "N/A"</td>
+                    <td>@subscription.SubscriptionState</td>
                     <td>@subscription.LoanAmount.ToString("C0")</td>
                     <td>@subscription.InsuredAmount.ToString("C0")</td>
-                    <td>@subscription.ReceivedOn.ToShortDateString()</td>
-                    <td>@subscription.LastUpdatedOn.ToShortDateString()</td>
+                    <td>@subscription.ReceivedOn.ToString("d/M/yy h:mm:ss")</td>
+                    <td>@subscription.LastUpdatedOn.ToString("d/M/yy h:mm:ss")</td>
                 </tr>
             }
             </tbody>

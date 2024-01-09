@@ -23,8 +23,8 @@ public class CustomerController(ILogger<CustomerController> logger) : Controller
     // ZEEBE endpoints should start with root path /
 
     [HttpPost("/register-customer")]
-    public async Task<ActionResult<CustomerModel>> RegisterCustomer(
-        [Required, FromBody] RegisterCustomerCommand command,
+    public async Task<ActionResult> RegisterCustomer(
+        [Required] RegisterCustomerCommand command,
         [FromServices] CustomerRepository repository)
     {
 
@@ -34,12 +34,12 @@ public class CustomerController(ILogger<CustomerController> logger) : Controller
         logger.LogInformation("New customer: {FirstName} {LastName} {Email}", customer.FirstName, customer.LastName,
             customer.Email);
 
-        return Ok(customer.ToModel());
+        return Ok(new CustomerIdModel(customer.Id));
     }
 
     [HttpPost("/determine-existing-customer")]
-    public async Task<ActionResult<CustomerIdModel>> DetermineExistingCustomer(
-        [Required, FromBody] DetermineExistingCustomerCommand command,
+    public async Task<ActionResult> DetermineExistingCustomer(
+        [Required] DetermineExistingCustomerCommand command,
         [FromServices] CustomerRepository repository)
     {
         var id = Customer.GetId(command.Email, command.BirthDate);
@@ -48,8 +48,8 @@ public class CustomerController(ILogger<CustomerController> logger) : Controller
     }
 
     [HttpPost("/know-your-customer")]
-    public async Task<ActionResult<CustomerModel>> KnowYourCustomer(
-        [Required, FromBody] KnowYourCustomerCommand command,
+    public async Task<ActionResult> KnowYourCustomer(
+        [Required] KnowYourCustomerCommand command,
         [FromServices] CustomerRepository customerRepository)
     {
         var customer = await customerRepository.GetAsync(command.CustomerId);
@@ -64,12 +64,12 @@ public class CustomerController(ILogger<CustomerController> logger) : Controller
         // save
         await customerRepository.AddAsync(customer);
 
-        return Ok(customer.ToModel());
+        return Ok(new CustomerIdModel(customer.Id));
     }
 
     [HttpPost("/notify-customer")]
     public async Task<ActionResult> NotifyCustomer(
-        [Required, FromBody] NotifyCustomerCommand command,
+        [Required] NotifyCustomerCommand command,
         [FromServices] CustomerRepository customerRepository,
         [FromServices] DaprClient daprClient)
     {
@@ -78,7 +78,7 @@ public class CustomerController(ILogger<CustomerController> logger) : Controller
             return NotFound();
         
         // send email
-        var body = $"Dear {customer.FirstName}\r\n\r\n, {command.Message}.";
+        var body = $"Dear {customer.FirstName}, {command.Message}";
         var metadata = new Dictionary<string, string>
         {
             ["emailFrom"] = "noreply@incredible.inc",
@@ -88,6 +88,8 @@ public class CustomerController(ILogger<CustomerController> logger) : Controller
 
         await daprClient.InvokeBindingAsync("send-email", "create", body, metadata);
 
-        return Ok();
+        return Ok(new CustomerIdModel(customer.Id));
     }
+
+    
 }

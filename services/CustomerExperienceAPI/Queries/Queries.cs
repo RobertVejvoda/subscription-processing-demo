@@ -13,13 +13,13 @@ public class Queries(CustomerDataContext context)
                 .Select(x => new SubscriptionRequestModel()
                 {
                     ProcessInstanceKey = x.ProcessInstanceKey,
-                    SubscriptionId = x.SubscriptionId,
-                    CustomerId = x.CustomerId,
+                    SubscriptionId = x.SubscriptionId ?? "N/A",
+                    CustomerId = x.CustomerId ?? "N/A",
                     FirstName = x.FirstName,
                     LastName = x.LastName,
                     Email = x.Email,
                     BirthDate = x.BirthDate,
-                    SubscriptionState = x.SubscriptionState,
+                    SubscriptionState = x.SubscriptionState ?? "N/A",
                     UnderwritingResultMessage = x.UnderwritingResultMessage,
                     ProductId = x.ProductId,
                     LoanAmount = x.LoanAmount,
@@ -42,13 +42,13 @@ public class Queries(CustomerDataContext context)
                 .Select(x => new SubscriptionRequestModel
                 {
                     ProcessInstanceKey = x.ProcessInstanceKey,
-                    SubscriptionId = x.SubscriptionId,
-                    CustomerId = x.CustomerId,
+                    SubscriptionId = x.SubscriptionId ?? "N/A",
+                    CustomerId = x.CustomerId ?? "N/A",
                     FirstName = x.FirstName,
                     LastName = x.LastName,
                     Email = x.Email,
                     BirthDate = x.BirthDate,
-                    SubscriptionState = x.SubscriptionState,
+                    SubscriptionState = x.SubscriptionState ?? "N/A",
                     UnderwritingResultMessage = x.UnderwritingResultMessage,
                     ProductId = x.ProductId,
                     LoanAmount = x.LoanAmount,

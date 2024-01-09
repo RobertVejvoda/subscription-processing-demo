@@ -4,7 +4,7 @@ public class SubscriptionRequestEntity
 {
     public required string ProcessInstanceKey { get; init; }
     public int SubscriptionRequestNo { get; init; }
-    public string? CustomerId { get; init; }
+    public string? CustomerId { get; set; }
     public required string FirstName { get; init; }
     public required string LastName { get; init; }
     public required string Email { get; init; }
