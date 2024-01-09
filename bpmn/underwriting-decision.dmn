@@ -21,6 +21,7 @@
       <output id="Output_1" label="Underwriting Result" name="underwritingResult" typeRef="string" />
       <output id="OutputClause_164s3cx" label="Message to customer" name="message" typeRef="string" biodi:width="402" />
       <rule id="DecisionRule_0129ofc">
+        <description>Whatever the risk, manualy declare as always accepted.</description>
         <inputEntry id="UnaryTests_11h15yc">
           <text></text>
         </inputEntry>
@@ -35,7 +36,7 @@
         </outputEntry>
       </rule>
       <rule id="DecisionRule_10tv9n5">
-        <description>Auto accept</description>
+        <description>Low risk, accepted.</description>
         <inputEntry id="UnaryTests_0sif67n">
           <text>&lt; 0.7</text>
         </inputEntry>
@@ -50,7 +51,7 @@
         </outputEntry>
       </rule>
       <rule id="DecisionRule_10v3wuv">
-        <description>Manually override the risk</description>
+        <description>Manually decided that risk is not acceptable.</description>
         <inputEntry id="UnaryTests_0ioszp0">
           <text>[0.7..1[</text>
         </inputEntry>
@@ -76,11 +77,11 @@
           <text>"Pending"</text>
         </outputEntry>
         <outputEntry id="LiteralExpression_1n1c5tr">
-          <text>"Please enter medical examination with our doctor."</text>
+          <text>"Your case will must be reviewed by our specialist. We'll contact you soon."</text>
         </outputEntry>
       </rule>
       <rule id="DecisionRule_0agwhvn">
-        <description>Rejected after reviewing medical case</description>
+        <description>Manually rejected.</description>
         <inputEntry id="UnaryTests_1l0e8yk">
           <text></text>
         </inputEntry>
@@ -95,7 +96,7 @@
         </outputEntry>
       </rule>
       <rule id="DecisionRule_1owv7md">
-        <description>Rejected</description>
+        <description>Any other state is rejected.</description>
         <inputEntry id="UnaryTests_1xo49n2">
           <text></text>
         </inputEntry>

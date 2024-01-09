@@ -1,75 +1,54 @@
 # Processing Subscription demo
 
-Lets assume that we want to process subscriptions (subscription becomes policy) and split processing into mulitple microservices. 
-There are possibly many ways how to achieve the goal. A typical approach is use some message oriented middleware like Kafka or RabbitMQ
-and exchange messages. While this is perfectly acceptable the other approach is to use some workflow orchestrator, in our case Camunda Platform 8.
-The BPMN below describes the flow.
+Purpose of this project is show how to implement microservices with Dapr and Camunda in larger scope. The following BPMN
+diagram shows one of many possible ways how to register request for mortgage cover, 
+validate it and process into Policy Management System (out of scope). 
 
-![image](assets/subscription-processing.png)
-
-The first task is to register a customer in CRM system or - in our case - Customer Service.
-Then Subscription Service is responsible for registering and validating the request.
-Assessment of incoming subscription can be implemented in DMN tables or in a more sophisticated way 
-using custom Underwriting Service. After acceptance the subscription is sent to PMS (policy management system) 
-for further processing and activation. This part is outside of this scope.
+![image](assets/subscription-register.png)
 
 ## Architecture
 
-For high availability systems I've decided to split commands and queries. 
-Each microservice has its own data store, but to provide the full visibility on customer we need to build simple ODS 
-(operational data store) which will be responsible for aggregating all customer portfolio and display a list of policies 
-or status of raised claims in future.
+![image](assets/subscription-architecture.drawio.png)
 
-Camunda orchestrates all the microservices and drives the asynchronous flow. The same approach could be achieved using 
-messaging (Kafka, RabbitMQ, ...) however here we have long running process support with full visibility out of the box.
+**Customer Zone (web UI)** is a simple application in Blazor to send and display subscription requests.
+It only communicated with APIs which are exposed in Customer Experience API. I had to try [Refit](https://github.com/reactiveui/refit)
+which is automatic type-safe REST library for .net core.   
 
-![image](assets/target_architecture.png)
+Each microservice has its own responsibility and data store. Subscription behaviour is implemented using domain driven approach 
+and can only be in valid states. The object is serialized and saved into MongoDB statestore using Dapr.
+
+**Microservices**
+
+1. Customer Experience API - .net8 based microservice which IS exposed. It has MSSQL container for registered requests.
+2. Subscription Service - .net8 based microservice which should NOT be exposed (only internal)
+3. Customer Service - .net based microservice which should NOT be exposed (only internal)
+
+The architecture follows (kind of) CQRS pattern, when all read requests go only to Customer Experience API.
 
 ## The process
 
-1. Subscription API is responsible to accept any subscription request and triggers processing in Camunda. 
-ProcessInstanceKey is given back as a reference.
-2. Register Customer and Register Subscription runs in parallel.
-3. Register Subscription in ODS - purpose is to generate read only model for customer queries.
-4. Validate Subscription - semantic validation happens here. If something is missing, customer will be notified and 
-subscription becomes Suspended. ODS is updated with the actual state.
-5. Subscription Underwriting - assessment of the risk according to customer age and insured amount. 
+1. When Customer Exp. API receives a request, it triggers the process in Camunda and returns process identificator (ProcessInstanceKey).
+This key is used as a primary key for all requests. 
+2. Camunda starts processing and calls job workers. These are defined in Dapr as Zeebe job workers and bind microservice endpoints.
+3. The first task is to register a customer in CRM system. That's Customer Service responsibility.
 
-Subscription And Customer Model
+![image](assets/register-customer.png)
 
-Both Subscription and Customer models are implemented using domain driven design. 
-To be able to properly serialize objects to database the easiest approach is map to simple POCO objects.
-I'm not a big fan of auto-mappers, but here it may be quite useful for one-way mapping.
+4. In parallel we register the subscription in Subscription Service. Once both tasks are finished, there is an extension endpoint. 
+Purpose of the endpoint is to notify listeners (Customer Exp. API) about Subscription status. Other endpoints are after Subscription status is changed.
+5. Subscription is validated, for example the requested product is still active.
+6. Provide medical assessment, calculate risk and possibly request more information. A DMN table handles the risk evaluation.
 
-![image](assets/subscription_states.png)
+![image](assets/subscription-analysis.png)
 
-### Register Customer
-
-![register customer](assets/register-customer.png)
-
-## Validate Subscription
-
-Ensure semantic validation of incoming subscription. For instance, here it validates that the product is available for sales.
-
-## Underwriting process
-
-Given customer's age and insured amount decide risk and make a final decision whether to accept subscription request.
-Since age needs to be calculated first, it's set as output parameter from "Create customer in CRM" activity and then
-available in global scope for other tasks.
-
-### Analyze Subscription
-
-![subscription analysis](assets/subscription-analysis.png)
-
-The following diagram consists of 2 decisions and shows how to chain multiple steps into a final one. 
-
-![underwriting](assets/underwriting.png)
-
+The following diagram consists of 2 decisions and shows how to chain multiple steps into a final one.
 First, decide risk according to customer age and insured amount results to 0-1.
 
-![underwriting risk](assets/underwriting_risk.jpg)
+![underwriting risk](assets/underwriting_decision.png)
 
-Second, make a final decision according to the risk evaluated.
+7. As a result of analysis the subscription will be accepted, rejected or suspended. State machine diagram shows the full subscription lifecycle.
+
+![image](assets/subscription_states.png)
 
 ---     
 
@@ -79,57 +58,87 @@ Second, make a final decision according to the risk evaluated.
 |------------------------------|------------------|------------------------|------------------------|--------------|
 | SubscriptionService          | 5001             | 3601                   | 60001                  | 9001         |
 | CustomerService              | 5002             | 3602                   | 60002                  | 9002         |
-| UnderwritingService [tbd]    | 5003             | 3603                   | 60003                  | 9003         |
-| PartnerService [tbd]         | 5004             | 3604                   | 60004                  | 9004         |
-| ProductService [tbd]         | 5005             | 3605                   | 60005                  | 9005         |
 | Customer Experience API      | 5010             | 3610                   | 60010                  | 9010         |
 | CustomerWeb                  | 5100             |                        |                        |              |
 
 ---
 
-### Builds
+### Run
 
-```terminal
-docker build -f ./services/CustomerService/Dockerfile .
-docker build -f ./services/SubscriptionService/Dockerfile .
-docker build -f ./services/ODSService/Dockerfile .
-```
-
-### Run & test
+Apply migrations: `dotnet ef database update`.
 
 ```terminal 
 docker compose --env-file .env -f docker-compose-camunda.yaml up -d
 docker compose --env-file .env -f docker-compose-infra.yaml up -d
-docker compose -f docker-compose.yaml up -d
+docker compose -f docker-compose.yaml up -d --build
 ```
 
-Apply scripts in "scripts" folder which contains migrations in numbered order.
-The other approach is to use `dotnet ef database update` command, but first 2 must be run anyway.
+### Test
 
+_subscription-requests.http contains calls to handle subscription. Start here to send a new request. The other approach is to use UI. 
 
+_customer-requests.http contains testable customer-register.bpmn process as a separate feature.
 
-File requests.http contains REST client scripts and is perhaps better.
+_camunda-requests.http contains some direct Zeebe commands, like publish-message to simulate response from customer when subscription is in "Pending" state.
+
+---
+
+1. Navigate to http://localhost:5100 and trigger request in UI or trigger requests in .http files.
+2. See processing running Operate on http://localhost:8081 with demo/demo credentials.
+3. See tasklist on http://localhost:8082 with demo/demo credentials.
+4. See mailbox simulating customer notifications on http://localhost:4000.
+5. See zipkin traces on http://localhost:9412.
+
+![image](assets/operate.png)
+
+---
+
+### Requests
+
+As an example the following requests are used for testing.
+
+**Register Subscription**
 
 ```
-POST http://localhost:5001/api/subscriptions
-dapr-app-id: subscription-service
+POST http://localhost:5010/api/subscriptions/register
+accept: application/json
 content-type: application/json
 
 {
   "firstName": "Homer",
   "lastName": "Simpson",
   "email": "homer.simpson@thesimpsons.movie",
-  "birthDate": "01-01-2000",
-  "productId": "1",
+  "birthDate": "1976-01-06",
+  "productId": "1", 
   "loanAmount": 200000,
   "insuredAmount": 100000
 }
-```
-
-and check subscription state:
 
 ```
-GET http://localhost:5001/api/subscriptions/{subscriptionId}
+
+and check subscription state providing ProcessInstanceKey from last step
+
+```
+GET http://localhost:5010/api/subscriptions/{{processInstanceKey}}
+accept: application/json
+content-type: application/json
+```
+
+---
+
+**Register customer**
+
+```
+POST http://localhost:5010/api/customers/register
+Accept: application/json
+Content-Type: application/json
+
+{
+  "firstName": "Homer",
+  "lastName": "Simpson",
+  "birthDate": "1976-01-06",
+  "email": "homer.simpson@thesimpsons.movie"
+}
 ```
 
 ### Notes
@@ -142,11 +151,11 @@ Typically underwriting happens even before any binding offer.
 
 ### Known issues
 
-<i>"cannot parse variables from binding result ; got error unexpected end of JSON input"</i>
+1. Error: <i>"cannot parse variables from binding result ; got error unexpected end of JSON input"</i>
 
 ... is caused by method not providing any response.
 
-Example:
+_Example_
 
 ```csharp
 [HttpPost("/subscription-registered")]
@@ -173,7 +182,9 @@ The fix is easy, just return something like
 return Ok(new { subscription.SubscriptionId, subscription.LastUpdatedOn });
 ```
 
-<i>cannot parse variables from binding result 48; got error json: cannot unmarshal number into Go value of type map[string]interface {}</i>
+---
+
+2. Error: <i>cannot parse variables from binding result 48; got error json: cannot unmarshal number into Go value of type map[string]interface {}</i>
 
 ```csharp
 public ActionResult<int> CalculateAge([Required] CalculateAgeCommand command)
@@ -186,3 +197,8 @@ The fix is easy, just return object
 public ActionResult<int> CalculateAge([Required] CalculateAgeCommand command)
         => Ok(new { Age = Calculator.CalculateAge(command.BirthDate) });
 ```
+
+
+### Disclaimer
+
+It's just a demo and is not a valid insurance business process. The purpose is only to see microservices orchestration by Camunda.
