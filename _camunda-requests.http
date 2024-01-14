@@ -18,7 +18,7 @@ Content-Type: application/json
 
 ### publish message
 
-@subscriptionId = "c37d6c6dfe80450bb32419b8a287c61e"
+@subscriptionId = "373369f0d5064006a553cf113ed2aae6"
 
 POST {{SubscriptionService_Dapr_HostAddress}}/v1.0/bindings/zeebe-command
 dapr-app-id: subscription-service

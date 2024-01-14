@@ -2,22 +2,52 @@
 
 Purpose of this project is show how to implement microservices with Dapr and Camunda in larger scope. The following BPMN
 diagram shows one of many possible ways how to register request for mortgage cover, 
-validate it and process into Policy Management System (out of scope). 
+validate it and process into Policy Management System (out of scope). It contains set of touchpoints to communicate status 
+with other microservices, for example.
 
 ![image](assets/subscription-register.png)
 
 ## Architecture
 
-![image](assets/subscription-architecture.drawio.png)
+![image](/Users/robert/source/repos/cardif/subscription-processing-demo/assets/subscription-architecture-application-diagram-and-process.drawio.png)
+
+Customer experience API (business API) - exposes set of endpoints to both internal and external applications. 
+It could be more split and provide fine grained interfaces (BFF). The service has it's own data source to store 
+customer requests; status of the request is updated according to extension touch points. 
+There are various ways how to do it, here it's focused on Camunda workflow orchestrator but messaging is always good choice too. 
+The difference is that here it's guaranteed the requests succeeded before the process continues, 
+while messaging is fully asynchronous.
+
+The service starts processing request in Camunda and according to process model, the goals is to register customer (if not exists yet), 
+register and analyze subscription. 
+
+Customer Service, Subscription Service and Underwriting Service provide implementation for "job workers" and bind them using "job types".
+
+![image](/Users/robert/source/repos/cardif/subscription-processing-demo/assets/jobtype-register-subscription.png)
+
+Dapr will use these job types with Zeebe binding to Subscription service...
+
+![image](/Users/robert/source/repos/cardif/subscription-processing-demo/assets/register-subscription-dapr.png)
+
+... and Subscription service will expose the endpoint
+
+![image](/Users/robert/source/repos/cardif/subscription-processing-demo/assets/register-subscription-code.png)
+
+### Logical diagram
+
+![image](/Users/robert/source/repos/cardif/subscription-processing-demo/assets/subscription-architecture-logical-diagram.drawio.png)
 
 **Customer Zone (web UI)** is a simple application in Blazor to send and display subscription requests.
 It only communicated with APIs which are exposed in Customer Experience API. I had to try [Refit](https://github.com/reactiveui/refit)
 which is automatic type-safe REST library for .net core.   
 
-Each microservice has its own responsibility and data store. Subscription behaviour is implemented using domain driven approach 
-and can only be in valid states. The object is serialized and saved into MongoDB statestore using Dapr.
-
 **Microservices**
+
+Each microservice has its own responsibility and data state store on MongoDB (currently Underwriting service is included
+in Subscription service with own controller). Subscription and Customer behaviour is implemented using domain driven approach
+and can only reach valid states.
+
+![image](assets/subscription_states.png)
 
 1. Customer Experience API - .net8 based microservice which IS exposed. It has MSSQL container for registered requests.
 2. Subscription Service - .net8 based microservice which should NOT be exposed (only internal)
@@ -25,9 +55,9 @@ and can only be in valid states. The object is serialized and saved into MongoDB
 
 The architecture follows (kind of) CQRS pattern, when all read requests go only to Customer Experience API.
 
-## The process
+## The complete process
 
-1. When Customer Exp. API receives a request, it triggers the process in Camunda and returns process identificator (ProcessInstanceKey).
+1. When Customer business API receives a request, it triggers the process in Camunda and returns process identificator (ProcessInstanceKey).
 This key is used as a primary key for all requests. 
 2. Camunda starts processing and calls job workers. These are defined in Dapr as Zeebe job workers and bind microservice endpoints.
 3. The first task is to register a customer in CRM system. That's Customer Service responsibility.
@@ -48,18 +78,18 @@ First, decide risk according to customer age and insured amount results to 0-1.
 
 7. As a result of analysis the subscription will be accepted, rejected or suspended. State machine diagram shows the full subscription lifecycle.
 
-![image](assets/subscription_states.png)
+
 
 ---     
 
 ## Setup
 
-| Service                      | Application Port | Dapr sidecar HTTP port | Dapr sidecar gRPC port | Metrics port |
-|------------------------------|------------------|------------------------|------------------------|--------------|
-| SubscriptionService          | 5001             | 3601                   | 60001                  | 9001         |
-| CustomerService              | 5002             | 3602                   | 60002                  | 9002         |
-| Customer Experience API      | 5010             | 3610                   | 60010                  | 9010         |
-| CustomerWeb                  | 5100             |                        |                        |              |
+| Service                               | Application Port | Dapr sidecar HTTP port | Dapr sidecar gRPC port | Metrics port |
+|---------------------------------------|------------------|------------------------|------------------------|--------------|
+| Customer Zone - Web                   | 5100             |                        |                        |              |
+| Customer Business API                 | 5010             | 3610                   | 60010                  | 9010         |
+| Subscription (+ Underwriting) Service | 5001             | 3601                   | 60001                  | 9001         |
+| Customer Service                      | 5002             | 3602                   | 60002                  | 9002         |
 
 ---
 
@@ -72,6 +102,10 @@ docker compose --env-file .env -f docker-compose-camunda.yaml up -d
 docker compose --env-file .env -f docker-compose-infra.yaml up -d
 docker compose -f docker-compose.yaml up -d --build
 ```
+
+Deploy processes with Camunda modeler
+
+![deploy processes](/Users/robert/source/repos/cardif/subscription-processing-demo/assets/camunda-modeler-deploy-process.png)
 
 ### Test
 
