@@ -9,7 +9,7 @@ with other microservices, for example.
 
 ## Architecture
 
-![image](/Users/robert/source/repos/cardif/subscription-processing-demo/assets/subscription-architecture-application-diagram-and-process.drawio.png)
+![image](assets/subscription-architecture-application-diagram-and-process.drawio.png)
 
 Customer experience API (business API) - exposes set of endpoints to both internal and external applications. 
 It could be more split and provide fine grained interfaces (BFF). The service has it's own data source to store 
@@ -23,19 +23,19 @@ register and analyze subscription.
 
 Customer Service, Subscription Service and Underwriting Service provide implementation for "job workers" and bind them using "job types".
 
-![image](/Users/robert/source/repos/cardif/subscription-processing-demo/assets/jobtype-register-subscription.png)
+![image](assets/jobtype-register-subscription.png)
 
 Dapr will use these job types with Zeebe binding to Subscription service...
 
-![image](/Users/robert/source/repos/cardif/subscription-processing-demo/assets/register-subscription-dapr.png)
+![image](assets/register-subscription-dapr.png)
 
 ... and Subscription service will expose the endpoint
 
-![image](/Users/robert/source/repos/cardif/subscription-processing-demo/assets/register-subscription-code.png)
+![image](assets/register-subscription-code.png)
 
 ### Logical diagram
 
-![image](/Users/robert/source/repos/cardif/subscription-processing-demo/assets/subscription-architecture-logical-diagram.drawio.png)
+![image](assets/subscription-architecture-logical-diagram.drawio.png)
 
 **Customer Zone (web UI)** is a simple application in Blazor to send and display subscription requests.
 It only communicated with APIs which are exposed in Customer Experience API. I had to try [Refit](https://github.com/reactiveui/refit)
@@ -105,7 +105,7 @@ docker compose -f docker-compose.yaml up -d --build
 
 Deploy processes with Camunda modeler
 
-![deploy processes](/Users/robert/source/repos/cardif/subscription-processing-demo/assets/camunda-modeler-deploy-process.png)
+![deploy processes](assets/camunda-modeler-deploy-process.png)
 
 ### Test
 
