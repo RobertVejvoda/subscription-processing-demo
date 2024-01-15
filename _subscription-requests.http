@@ -14,15 +14,15 @@ content-type: application/json
   "lastName": "Simpson",
   "email": "homer.simpson@thesimpsons.movie",
   "birthDate": "1976-01-06",
-  "productId": "1", 
+  "productId": "home", 
   "loanAmount": 200000,
   "insuredAmount": 100000
 }
 
 ### get registered subscription request by ProcessInstanceKey
 
-# @processInstanceKey = {{registerSubscription.response.body.$.processInstanceKey}}
-@processInstanceKey = 2251799814219495
+@processInstanceKey = {{registerSubscription.response.body.$.processInstanceKey}}
+# @processInstanceKey = 2251799814219495
 GET {{CustomerExperienceApi_HostAddress}}/api/subscriptions/{{processInstanceKey}}
 accept: application/json
 content-type: application/json
@@ -35,7 +35,7 @@ content-type: application/json
 
 ### get subscription by ID (when available after registration)
 
-# @subscriptionId={{registerSubscription.response.body.$.subscriptionId}}
+@subscriptionId={{registerSubscription.response.body.$.subscriptionId}}
 GET {{SubscriptionService_HostAddress}}/api/subscriptions/{{subscriptionId}}
 accept: application/json
 content-type: application/json

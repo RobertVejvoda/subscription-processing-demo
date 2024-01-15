@@ -10,6 +10,8 @@ services:
       dockerfile: ./services/SubscriptionService/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+    networks:
+      - subscription-processing-demo
     ports:
       - "5001:8080"       # app
       - "3601:3500"
@@ -43,6 +45,8 @@ services:
       dockerfile: ./services/CustomerService/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+    networks:
+      - subscription-processing-demo
     ports:
       - "5002:8080"       # app
       - "3602:3500"
@@ -76,6 +80,8 @@ services:
       dockerfile: ./services/CustomerExperienceAPI/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+    networks:
+      - subscription-processing-demo
     ports:
       - "5010:8080"       # app
       - "3610:3500"
@@ -109,7 +115,10 @@ services:
       dockerfile: ./clients/CustomerWeb/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+    networks:
+      - subscription-processing-demo
     ports:
       - "5100:8080"       # app
 
-  
+networks:
+  subscription-processing-demo:  

@@ -18,7 +18,7 @@ Content-Type: application/json
 
 ### publish message
 
-@subscriptionId = "373369f0d5064006a553cf113ed2aae6"
+# @subscriptionId = 373369f0d5064006a553cf113ed2aae6
 
 POST {{SubscriptionService_Dapr_HostAddress}}/v1.0/bindings/zeebe-command
 dapr-app-id: subscription-service
@@ -28,7 +28,7 @@ Content-Type: application/json
 {
   "data": {
     "messageName": "on-information-received",
-    "correlationKey": {{subscriptionId}},
+    "correlationKey": "373369f0d5064006a553cf113ed2aae6",
     "timeToLive": "1m"
   },  
   "operation": "publish-message"

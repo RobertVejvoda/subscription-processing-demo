@@ -9,6 +9,8 @@ services:
     ports:
       - "4000:1080"
       - "4025:1025"
+    networks:
+      - subscription-processing-demo
 
   zipkin:
     container_name: zipkin2
@@ -16,7 +18,9 @@ services:
     restart: unless-stopped
     ports:
       - "9412:9411"
-
+    networks:
+      - subscription-processing-demo
+      
   mongo:
     container_name: mongo
     image: mongo:5.0.15
@@ -27,6 +31,8 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
     ports:
       - "27017:27017"
+    networks:
+      - subscription-processing-demo
     volumes:
       - mongo-data:/var/lib/mongo"
 
@@ -39,9 +45,14 @@ services:
       - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
     ports:
       - "1433:1433"
+    networks:
+      - subscription-processing-demo
     volumes:
       - mssql-data:/var/opt/mssql
     
 volumes:
   mongo-data:
   mssql-data:
+
+networks:
+  subscription-processing-demo:
