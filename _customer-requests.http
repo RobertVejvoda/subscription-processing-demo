@@ -1,5 +1,6 @@
 @CustomerExperienceApi_HostAddress = http://localhost:5010
 @CustomerService_HostAddress = http://localhost:5002
+@CustomerService_Dapr_HostAddress = http://localhost:3602
 
 ### register customer via Customer Experience API
 
@@ -24,3 +25,9 @@ GET {{CustomerService_HostAddress}}/api/customers/{{customerId}}
 Content-Type: application/json
 
 ###
+
+customerId = MTk3Ni0wMS0wNnxob21lci5zaW1wc29uQHRoZXNpbXBzb25zLm1vdmll
+
+GET {{CustomerService_Dapr_HostAddress}}/api/customers/{{customerId}}
+dapr-app-id: customer-service
+Content-Type: application/json
