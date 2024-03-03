@@ -1,41 +1,57 @@
+using Microsoft.OpenApi.Extensions;
+using SubscriptionService.Domain;
+using SubscriptionService.Dto;
+
 namespace SubscriptionService.Controllers;
 
 [ApiController]
 [Route("/api/underwriting")]
-public class UnderwritingController(SubscriptionRepository repository) : ControllerBase
+public class UnderwritingController(UnderwritingRepository repository) : ControllerBase
 {
     // ZEEBE endpoints should start with root path /
+    
+    [HttpPost("/register-underwriting-request")]
+    public async Task<ActionResult> RegisterUnderwritingRequest(
+        [Required] RegisterUnderwritingRequestCommand command)
+    {
+        var underwritingRequest = await repository.GetAsync(command.RequestId);
+        if (underwritingRequest == null)
+            underwritingRequest = new UnderwritingRequest(command.RequestId, command.CustomerId, command.Age,
+                command.InsuredAmount, UnderwritingResultState.Registered.GetDisplayName(), string.Empty);
+        
+        await repository.AddAsync(underwritingRequest);
+
+        return Ok(new { underwritingRequest.RequestId });
+    }
     
     [HttpPost("/request-information")]
     public async Task<ActionResult> RequestInformation(
         [Required] RequestInformationCommand command)
     {
-        var subscription = await repository.GetAsync(command.SubscriptionId);
-        if (subscription == null)
+        var underwriting = await repository.GetAsync(command.RequestId);
+        if (underwriting == null)
             return NotFound();
+
+        underwriting.UnderwritingResultState = command.UnderwritingResultState;
+        underwriting.UnderwritingResultMessage = command.UnderwritingResultMessage;
         
-        subscription.RequestInformation(
-            new UnderwritingResult(
-                Enum.Parse<UnderwritingResultState>(command.UnderwritingResultState, true), 
-                command.UnderwritingResultMessage));
+        await repository.AddAsync(underwriting);
 
-        await repository.AddAsync(subscription);
-
-        return Ok(new { subscription.SubscriptionId });
+        return Ok(new { underwriting.RequestId });
     }
 
     [HttpPost("/on-information-received")]
     public async Task<ActionResult> InformationReceived(InformationReceivedCommand command)
     {
-        var subscription = await repository.GetAsync(command.SubscriptionId);
-        if (subscription == null)
+        var underwriting = await repository.GetAsync(command.RequestId);
+        if (underwriting == null)
             return NotFound();
+
+        underwriting.UnderwritingResultState = UnderwritingResultState.InEvaluation.GetDisplayName();
         
-        subscription.OnInformationReceived();
+        await repository.AddAsync(underwriting);
 
-        await repository.AddAsync(subscription);
-
-        return Ok(new { subscription.SubscriptionId });
+        return Ok(new { underwriting.RequestId });
     }
 
     [HttpPost("/calculate-age")]

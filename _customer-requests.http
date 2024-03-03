@@ -1,33 +1,20 @@
-@CustomerExperienceApi_HostAddress = http://localhost:5010
-@CustomerService_HostAddress = http://localhost:5002
-@CustomerService_Dapr_HostAddress = http://localhost:3602
+### register a new customer (start process)
 
-### register customer via Customer Experience API
-
-# @name registerCustomer
-POST {{CustomerExperienceApi_HostAddress}}/api/customers/register
+POST http://localhost:3602/v1.0/bindings/zeebe-command
+dapr-app-id: customer-service
 Accept: application/json
 Content-Type: application/json
 
 {
-  "firstName": "Homer",
-  "lastName": "Simpson",
-  "birthDate": "1976-01-06",
-  "email": "homer.simpson@thesimpsons.movie"
+ "data": {
+    "bpmnProcessId": "register-customer-process_1434vxu",
+    "version": 4,
+    "variables": {
+      "firstName": "March",
+      "lastName": "Simpson",
+      "birthDate": "1980-06-06",
+      "email": "march.simpson@thesimpsons.movie"
+    }
+  }, 
+  "operation": "create-instance"
 }
-
-###
-
-# @customerId = {{registerCustomer.response.body.$.customerId}}
-@customerId = MjAwMC0wMS0wMXxiYXJ0QHNpbXBzb24uY29t
-
-GET {{CustomerService_HostAddress}}/api/customers/{{customerId}}
-Content-Type: application/json
-
-###
-
-customerId = MTk3Ni0wMS0wNnxob21lci5zaW1wc29uQHRoZXNpbXBzb25zLm1vdmll
-
-GET {{CustomerService_Dapr_HostAddress}}/api/customers/{{customerId}}
-dapr-app-id: customer-service
-Content-Type: application/json

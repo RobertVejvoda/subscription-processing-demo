@@ -13,7 +13,6 @@ global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.Extensions.Diagnostics.HealthChecks;
 global using Microsoft.OpenApi.Models;
 global using SubscriptionService.Commands;
-global using SubscriptionService.Model;
 global using SubscriptionService.Proxy;
 global using SubscriptionService.Repository;
-global using Subscription = SubscriptionService.Model.Subscription;
+global using Subscription = SubscriptionService.Domain.Subscription;

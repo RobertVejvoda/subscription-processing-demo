@@ -2,7 +2,7 @@
 
 Purpose of this project is show how to implement microservices with Dapr and Camunda in larger scope. The following BPMN
 diagram shows one of many possible ways how to register request for mortgage cover, 
-validate it and process into Policy Management System (out of scope). It contains set of touchpoints to communicate status 
+validate it and process into Policy Management System (out of scope). It contains set of touch points to communicate status 
 with other microservices, for example.
 
 ![image](assets/subscription-register.png)
@@ -12,8 +12,8 @@ with other microservices, for example.
 ![image](assets/subscription-architecture-application-diagram-and-process.drawio.png)
 
 Customer experience API (business API) - exposes set of endpoints to both internal and external applications. 
-It could be more split and provide fine grained interfaces (BFF). The service has it's own data source to store 
-customer requests; status of the request is updated according to extension touch points. 
+It could be more split and provide fine grained interfaces (BFF). The service has its own data source to store 
+customer requests; status of the request is updated according to extension touchpoints. 
 There are various ways how to do it, here it's focused on Camunda workflow orchestrator but messaging is always good choice too. 
 The difference is that here it's guaranteed the requests succeeded before the process continues, 
 while messaging is fully asynchronous.

@@ -7,7 +7,7 @@ namespace SubscriptionService.Controllers;
 public class SubscriptionController(SubscriptionRepository repository) : ControllerBase
 {
     [HttpGet("{subscriptionId}")]
-    public async Task<ActionResult<SubscriptionModel>> GetSubscription(string subscriptionId)
+    public async Task<ActionResult<Dto.Subscription>> GetSubscription(string subscriptionId)
     {
         Guard.ArgumentNotNullOrEmpty(subscriptionId);
 
@@ -15,7 +15,7 @@ public class SubscriptionController(SubscriptionRepository repository) : Control
         if (subscription == null)
             return NotFound();
 
-        return Ok(subscription.ToModel());
+        return Ok(subscription.ToDto());
     }
     
     // ZEEBE endpoints should start with root path /

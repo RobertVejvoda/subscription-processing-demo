@@ -77,7 +77,7 @@ services:
     image: customer-experience-service:${TAG:-latest}
     build:
       context: .
-      dockerfile: ./services/CustomerExperienceAPI/Dockerfile
+      dockerfile: ./services/CustomerBusinessAPI/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
     networks:

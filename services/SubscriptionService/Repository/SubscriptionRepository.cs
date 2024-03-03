@@ -6,20 +6,20 @@ public class SubscriptionRepository(DaprClient daprClient)
 
     public async Task AddAsync(Subscription subscription)
     {
-        var model = subscription.ToModel();
+        var dto = subscription.ToDto();
         var key = $"S-{subscription.SubscriptionId}";
-        await daprClient.SaveStateAsync(StateStore, key, model);
+        await daprClient.SaveStateAsync(StateStore, key, dto);
     }
 
 
     public async Task<Subscription?> GetAsync(string subscriptionId)
     {
         var key = $"S-{subscriptionId}";
-        var model = await daprClient.GetStateAsync<SubscriptionModel>(StateStore, key);
+        var model = await daprClient.GetStateAsync<Dto.Subscription>(StateStore, key);
         if (model == null)
             return null;
 
-        var subscription = Subscription.FromModel(model);
+        var subscription = Subscription.FromDto(model);
         return subscription;
     }
 }

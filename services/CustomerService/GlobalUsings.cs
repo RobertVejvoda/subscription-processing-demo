@@ -8,7 +8,6 @@ global using Core.Providers;
 global using CustomerService.Repository;
 global using Core.Types;
 global using CustomerService.Commands;
-global using CustomerService.Model;
 global using HealthChecks;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.Extensions.Diagnostics.HealthChecks;
