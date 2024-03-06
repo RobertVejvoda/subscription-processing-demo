@@ -3,25 +3,25 @@ using Dapr.Client;
 
 namespace CustomerService.Repository;
 
-public class CustomerRepository(DaprClient daprClient) : RepositoryBase<Customer>
+public class CustomerRepository(DaprClient daprClient) : RepositoryBase<Domain.Customer>
 {
     private const string StateStoreName = "statestore";
 
-    public override Task AddAsync(Customer customer)
+    public override Task AddAsync(Domain.Customer customer)
     {
-        var model = customer.ToModel();
+        var model = customer.ToDto();
         var key = $"C-{customer.Id}";
         return daprClient.SaveStateAsync(StateStoreName, key, model);
     }
 
-    public async Task<Customer?> GetAsync(string id)
+    public async Task<Domain.Customer?> GetAsync(string id)
     {
         var key = $"C-{id}";
-        var model = await daprClient.GetStateAsync<CustomerModel>(StateStoreName, key);
-        if (model == null)
+        var dto = await daprClient.GetStateAsync<Dto.Customer>(StateStoreName, key);
+        if (dto == null)
             return null;
 
-        var customer = Customer.FromModel(model);
+        var customer = Domain.Customer.FromDto(dto);
         return customer;
     }
 }

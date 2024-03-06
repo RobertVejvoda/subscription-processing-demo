@@ -1,54 +1,31 @@
-@CustomerExperienceApi_HostAddress = http://localhost:5010
-@SubscriptionService_HostAddress = http://localhost:5001
-@SubscriptionService_Dapr_HostAddress = http://localhost:3601
-
-### register a new subscription request
+### register a new subscription (start process)
 
 # @name registerSubscription
-POST {{CustomerExperienceApi_HostAddress}}/api/subscriptions/register
-accept: application/json
-content-type: application/json
+
+POST http://localhost:3601/v1.0/bindings/zeebe-command
+dapr-app-id: subscription-service
+Accept: application/json
+Content-Type: application/json
 
 {
-  "firstName": "Homer",
-  "lastName": "Simpson",
-  "email": "homer.simpson@thesimpsons.movie",
-  "birthDate": "1976-01-06",
-  "productId": "home", 
-  "loanAmount": 200000,
-  "insuredAmount": 100000
+ "data": {
+    "bpmnProcessId": "Subscription_Process_Workflow",
+    "variables": {
+      "firstName": "Lisa",
+      "lastName": "Simpson",
+      "birthDate": "1980-12-31",
+      "email": "lisa.simpson@thesimpsons.movie",
+      "productId": "home", 
+      "loanAmount": 200000,
+      "insuredAmount": 100000
+    }
+  }, 
+  "operation": "create-instance"
 }
-
-### get registered subscription request by ProcessInstanceKey
-
-@processInstanceKey = {{registerSubscription.response.body.$.processInstanceKey}}
-# @processInstanceKey = 2251799814219495
-GET {{CustomerExperienceApi_HostAddress}}/api/subscriptions/{{processInstanceKey}}
-accept: application/json
-content-type: application/json
 
 ### get all registered subscription requests
 
-GET {{CustomerExperienceApi_HostAddress}}/api/subscriptions?take=15
+GET http://localhost:5010/api/subscriptions?take=5
 accept: application/json
 content-type: application/json
-
-### get subscription by ID (when available after registration)
-
-@subscriptionId={{registerSubscription.response.body.$.subscriptionId}}
-GET {{SubscriptionService_HostAddress}}/api/subscriptions/{{subscriptionId}}
-accept: application/json
-content-type: application/json
-
-### calculate age
-
-POST {{SubscriptionService_HostAddress}}/calculate-age
-accept: application/json
-content-type: application/json
-
-{
-  "birthDate": "1975-05-18"
-}
-
-
 

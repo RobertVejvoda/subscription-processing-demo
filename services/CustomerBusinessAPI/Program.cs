@@ -4,26 +4,26 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<UnderwritingRepository>();
-builder.Services.AddScoped<SubscriptionRepository>();
-builder.Services.AddScoped<ProductProxyService>();
 builder.Services.AddSingleton<IDateTimeProvider, UtcDateTimeProvider>();
-builder.Services.AddSingleton<IZeebeClient, ZeebeClient>();
+builder.Services.AddScoped<IZeebeClient, ZeebeClient>();
+builder.Services.AddScoped<Queries>();
 
 builder.Services.AddControllers()
     .AddDapr(client => client.UseJsonSerializationOptions(new JsonSerializerOptions(JsonSerializerDefaults.Web)));
 
-builder.Services
-    .AddHealthChecks()
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<CustomerDataContext>()
     .AddCheck("self", () => HealthCheckResult.Healthy())
     .AddDapr();
 
+builder.Services.AddDbContext<CustomerDataContext>(
+    options => options
+        .UseSqlServer(builder.Configuration.GetConnectionString("CustomerDataStore")))
+        .AddHealthChecks();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Subscription API", Version = "v1" });
-});
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -33,11 +33,13 @@ app.UseSwagger();
 // Enable middleware to serve swagger-ui (HTML, JS, CSS etc.), specifying the Swagger JSON endpoint.
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Subscription API - v1");
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Customer Experience API - v1");
     c.RoutePrefix = string.Empty;
 });
 
+
 app.UseHealthChecks("/healthz");
+
 app.MapControllers();
 
 app.Run();

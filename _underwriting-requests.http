@@ -1,0 +1,46 @@
+
+### Start underwriting process
+
+POST http://localhost:3601/v1.0/bindings/zeebe-command
+dapr-app-id: subscription-service
+Accept: application/json
+Content-Type: application/json
+
+{
+ "data": {
+    "bpmnProcessId": "subscripion_analysis_process_1gvb6cf",
+    "variables": {
+      "requestId": "dummy",
+      "customerId": "mjawmc0xmi0zmxxsaxnhlnnpbxbzb25adghlc2ltchnvbnmubw92awu",
+      "birthDate": "1980-12-31",
+      "insuredAmount": 150000
+    }
+  }, 
+  "operation": "create-instance"
+}
+
+### on information reveived
+
+POST http://localhost:3601/v1.0/bindings/zeebe-command
+dapr-app-id: subscription-service
+Accept: application/json
+Content-Type: application/json
+
+{
+  "data": {
+    "messageName": "on-information-received",
+    "correlationKey": "dummy",
+    "timeToLive": "1m"
+  },  
+  "operation": "publish-message"
+}
+
+### calculate age
+
+POST http://localhost:5001/calculate-age
+accept: application/json
+content-type: application/json
+
+{
+  "birthDate": "1975-05-18"
+}

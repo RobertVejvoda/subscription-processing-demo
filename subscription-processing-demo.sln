@@ -19,7 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{BD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "blocks\Core\Core.csproj", "{594E8E92-6BBC-44C7-A896-65F5AB621D9E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomerExperienceAPI", "services\CustomerExperienceAPI\CustomerExperienceAPI.csproj", "{08868EF7-A78B-4677-8AA1-E6F87EE8313B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomerBusinessAPI", "services\CustomerBusinessAPI\CustomerBusinessAPI.csproj", "{08868EF7-A78B-4677-8AA1-E6F87EE8313B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomerWeb", "clients\CustomerWeb\CustomerWeb.csproj", "{E4C7AE3C-4B1A-4424-9D13-099CAA7210F6}"
 EndProject

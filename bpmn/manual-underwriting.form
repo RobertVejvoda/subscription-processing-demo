@@ -1,0 +1,80 @@
+{
+  "components": [
+    {
+      "text": "# Medical assessment",
+      "label": "Text view",
+      "type": "text",
+      "layout": {
+        "row": "Row_0nvfp76",
+        "columns": null
+      },
+      "id": "Field_0ybbj2p"
+    },
+    {
+      "label": "Request ID",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_098i13e",
+        "columns": null
+      },
+      "id": "Field_0kawj6o",
+      "key": "requestId",
+      "disabled": false,
+      "readonly": true
+    },
+    {
+      "label": "Insured Amount",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_0c6xbiw",
+        "columns": null
+      },
+      "id": "Field_0crws1v",
+      "key": "insuredAmount",
+      "description": "insuredAmount",
+      "readonly": true
+    },
+    {
+      "label": "Age",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_0c6xbiw",
+        "columns": null
+      },
+      "id": "Field_15hyphx",
+      "key": "age",
+      "readonly": true
+    },
+    {
+      "label": "Risk Assessment Result",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_0ulqexg",
+        "columns": null
+      },
+      "id": "Field_1oes21l",
+      "key": "underwritingResultMessage",
+      "readonly": true
+    },
+    {
+      "label": "Medical assessment OK",
+      "type": "checkbox",
+      "layout": {
+        "row": "Row_0ohzu51",
+        "columns": null
+      },
+      "id": "Field_0fvdbbl",
+      "key": "medicalAssessmentResult",
+      "defaultValue": false
+    }
+  ],
+  "type": "default",
+  "id": "Form_0aer3pu",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.4.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.20.0"
+  },
+  "schemaVersion": 15
+}
